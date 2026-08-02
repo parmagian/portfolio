@@ -1,2 +1,8 @@
 .DS_Store
 .claude/
+
+# Web-ready copies produced by tools/prepare-images.sh.
+# Kept on disk as a working library to pick from, but not committed —
+# photos that go live belong in images/gallery/<location>/.
+images/exports/*
+!images/exports/.gitkeep
