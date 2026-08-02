@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gian — Landscape Photography</title>
+  <meta name="description" content="Fine-art landscape photography by Gian." />
+
+  <!-- Google Fonts: Cormorant Garamond (headlines) + Inter (captions/UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ── Navigation ──────────────────────────────────────────── -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">Gian</a>
+    <ul class="nav-links">
+      <li><a href="galleries.html">Galleries</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── Hero — featured print with slow crossfade ───────────── -->
+  <!-- REPLACE WITH REAL IMAGES: swap the src paths below for your
+       featured landscapes. 3–5 images, landscape orientation. -->
+  <header class="hero">
+    <div class="hero-print">
+      <div class="hero-frame" aria-label="Featured photograph">
+        <img src="images/hero/hero-1.jpg" alt="Featured landscape photograph" class="visible" />
+        <img src="images/hero/hero-2.jpg" alt="" aria-hidden="true" />
+        <img src="images/hero/hero-3.jpg" alt="" aria-hidden="true" />
+        <img src="images/hero/hero-4.jpg" alt="" aria-hidden="true" />
+      </div>
+    </div>
+    <h1 class="hero-title">Gian</h1>
+    <p class="hero-sub">Landscape Photography</p>
+  </header>
+
+  <!-- ── Selected Works ──────────────────────────────────────── -->
+  <!-- REPLACE: captions are placeholders — give each print a title
+       and location, e.g. <em>Morning Fog</em> Dolomites, Italy
+
+       ASPECT RATIOS — images are never cropped here; pick a size
+       class matching each photo's shape:
+         print--lg    3:2 or 2:3 (standard)
+         print--pano  panoramic (any wide ratio)
+         print--sq    1:1 square (also good for 2:3 portraits)
+       Pairs (.print-pair) work with any mix; they align at the top. -->
+  <section class="section" aria-label="Selected works">
+    <div class="section-heading">
+      <h2>Selected Works</h2>
+      <div class="rule"></div>
+    </div>
+
+    <div class="works">
+
+      <a class="print print--lg" href="galleries.html">
+        <figure>
+          <img src="images/gallery/gallery-1.jpg" alt="Landscape photograph" loading="lazy" />
+          <figcaption><em>Untitled I</em> Location, Year</figcaption>
+        </figure>
+      </a>
+
+      <div class="print-pair">
+        <a class="print" href="galleries.html">
+          <figure>
+            <img src="images/gallery/gallery-2.jpg" alt="Landscape photograph" loading="lazy" />
+            <figcaption><em>Untitled II</em> Location, Year</figcaption>
+          </figure>
+        </a>
+        <a class="print" href="galleries.html">
+          <figure>
+            <img src="images/gallery/gallery-3.jpg" alt="Landscape photograph" loading="lazy" />
+            <figcaption><em>Untitled III</em> Location, Year</figcaption>
+          </figure>
+        </a>
+      </div>
+
+      <a class="print print--lg" href="galleries.html">
+        <figure>
+          <img src="images/gallery/gallery-4.jpg" alt="Landscape photograph" loading="lazy" />
+          <figcaption><em>Untitled IV</em> Location, Year</figcaption>
+        </figure>
+      </a>
+
+      <div class="print-pair">
+        <a class="print" href="galleries.html">
+          <figure>
+            <img src="images/gallery/gallery-5.jpg" alt="Landscape photograph" loading="lazy" />
+            <figcaption><em>Untitled V</em> Location, Year</figcaption>
+          </figure>
+        </a>
+        <a class="print" href="galleries.html">
+          <figure>
+            <img src="images/gallery/gallery-6.jpg" alt="Landscape photograph" loading="lazy" />
+            <figcaption><em>Untitled VI</em> Location, Year</figcaption>
+          </figure>
+        </a>
+      </div>
+
+    </div>
+
+    <p class="works-more">
+      <a href="galleries.html" class="text-link">View All Galleries &rarr;</a>
+    </p>
+  </section>
+
+  <!-- ── About Teaser ────────────────────────────────────────── -->
+  <!-- REPLACE: Update the paragraph below with your own bio. -->
+  <section class="section section--about" aria-label="About">
+    <div class="about-teaser">
+      <p>
+        I'm Gian &mdash; a photographer drawn to the scale and stillness
+        of the natural world, shooting landscapes where light and land collide.
+      </p>
+      <a href="about.html" class="text-link">About Me &rarr;</a>
+    </div>
+  </section>
+
+  <!-- ── Footer ──────────────────────────────────────────────── -->
+  <!-- REPLACE: Update social links with your actual profile URLs. -->
+  <footer class="footer">
+    <span class="footer-copy">&copy; 2026 Gian</span>
+    <nav class="footer-links" aria-label="Social links">
+      <a href="#" aria-label="Instagram">Instagram</a>
+      <a href="#" aria-label="500px">500px</a>
+    </nav>
+  </footer>
+
+  <script src="js/hero.js"></script>
+</body>
+</html>
