@@ -117,20 +117,25 @@ a {
   text-align: center;
 }
 
-/* The framed featured photograph */
+/* The framed featured photograph.
+   --ratio (width/height, set by hero.js per image) drives both the
+   frame shape and a height cap: 68svh * ratio converts "max 68% of
+   the viewport tall" into a width, so portraits stay on screen. */
 .hero-print {
   position: relative;
-  width: min(880px, 100%);
+  width: min(880px, 100%, calc(68svh * var(--ratio, 1.5)));
   background: var(--mat);
   padding: clamp(14px, 2.2vw, 26px);   /* the mat */
   box-shadow: var(--print-shadow);
+  transition: width 1.2s ease;
 }
 
 .hero-print .hero-frame {
   position: relative;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: var(--ratio, 1.5);
   overflow: hidden;
   background: var(--mat);
+  transition: aspect-ratio 1.2s ease;
 }
 
 /* Stacked crossfading images.
