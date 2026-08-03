@@ -30,13 +30,21 @@
     attributionControl: true
   });
 
-  /* A muted basemap — the photographs should carry the colour, not the map. */
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> ' +
-      'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 19
+  /* A muted basemap — the photographs should carry the colour, not the map.
+     Esri's light grey canvas is used rather than CARTO's because CARTO
+     labels places in local languages, which put "亚洲" and "AFRIKA / أفريقيا"
+     across the map. Esri splits geography and labels into two layers, so the
+     land is drawn first and the English place names sit on top. */
+  var esri = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/';
+
+  L.tileLayer(esri + 'World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; <a href="https://www.esri.com/">Esri</a>',
+    maxZoom: 16
+  }).addTo(map);
+
+  L.tileLayer(esri + 'World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 16,
+    pane: 'overlayPane'
   }).addTo(map);
 
   /* Pin size scales gently with the number of photographs, so a big

@@ -335,7 +335,14 @@ def build(locations, coords):
     <span class="footer-copy">&copy; 2026 Gian</span>
     <nav class="footer-links" aria-label="Social links">
       <a href="https://www.instagram.com/gians_shots/" aria-label="Instagram"
-         target="_blank" rel="noopener">Instagram</a>
+         target="_blank" rel="noopener">
+        <svg class="social-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.6" aria-hidden="true" focusable="false">
+          <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" />
+          <circle cx="12" cy="12" r="4.4" />
+          <circle cx="17.6" cy="6.4" r="1.2" fill="currentColor" stroke="none" />
+        </svg>
+      </a>
       <a href="#" aria-label="500px">500px</a>
     </nav>
   </footer>

@@ -217,8 +217,13 @@ a {
   text-align: center;
 }
 
+/* block, not inline-block: an inline-block shrink-to-fits around its
+   content, so a not-yet-loaded image gives the figure no width to resolve
+   `width: 100%` against — height reservation collapses and the page grows
+   by thousands of pixels as photographs decode. The parent .print already
+   sets the width and centres it. */
 .print figure {
-  display: inline-block;
+  display: block;
   background: var(--mat);
   padding: clamp(12px, 1.8vw, 20px);
   box-shadow: var(--print-shadow);
@@ -332,10 +337,27 @@ a {
 
 .footer-links {
   display: flex;
+  align-items: center;
   gap: 28px;
 }
 
+.footer-links a {
+  display: inline-flex;
+  align-items: center;
+}
+
 .footer-links a:hover { color: var(--fg); }
+
+/* Social glyphs inherit the link colour, so they pick up the hover state
+   with no extra rules. Sized a touch above the caps height beside them. */
+.social-icon {
+  width: 17px;
+  height: 17px;
+  display: block;
+  transition: opacity 0.2s ease;
+}
+
+.footer-links a:hover .social-icon { opacity: 1; }
 
 /* ── Galleries Page ─────────────────────────────────────────── */
 .galleries-header {
