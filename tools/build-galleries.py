@@ -127,7 +127,15 @@ def collect():
             })
 
         locations[slug] = items
-    return locations
+
+    # Biggest galleries first; alphabetical among equals so the order is stable.
+    def photo_count(slug):
+        return sum(1 for it in locations[slug] if it["kind"] == "photo")
+
+    return {
+        slug: locations[slug]
+        for slug in sorted(locations, key=lambda s: (-photo_count(s), s))
+    }
 
 
 def figure_html(item, indent):

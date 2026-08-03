@@ -330,6 +330,84 @@ a {
 
 .footer-links a:hover { color: var(--fg); }
 
+/* ── Galleries Page ─────────────────────────────────────────── */
+.galleries-header {
+  padding: calc(var(--section-pad) + 40px) var(--page-gutter) 0;
+  text-align: center;
+}
+
+.galleries-header h1 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 4.5vw, 3.1rem);
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.galleries-sub {
+  margin-top: 10px;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Jump links — one per location */
+.location-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px clamp(18px, 3vw, 34px);
+  list-style: none;
+  max-width: 780px;
+  margin: 40px auto 0;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+
+.location-nav a {
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  color: var(--muted);
+  transition: color 0.2s ease;
+}
+
+.location-nav a:hover { color: var(--fg); }
+
+/* Each location's section. scroll-margin keeps the fixed nav from
+   covering the heading when a jump link is followed. */
+.gallery-section {
+  scroll-margin-top: 72px;
+}
+
+.gallery-count {
+  margin-top: 14px;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Open slots — photographs still to come. Presented as a bare mat with
+   no shadow so they read as reserved space, not as hung prints. */
+.print--empty figure {
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.print--empty:hover figure {
+  transform: none;
+  box-shadow: none;
+}
+
+.print--empty figcaption {
+  color: #B5ADA4;
+}
+
 /* ── Stub Pages ─────────────────────────────────────────────── */
 .stub-body {
   display: flex;
