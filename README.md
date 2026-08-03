@@ -17,8 +17,15 @@ js/hero.js          Hero crossfade + nav scroll behaviour
 images/hero/        Hero slideshow photographs
 images/gallery/     Galleries, one folder per location
 images/exports/     Working library of web-sized copies (NOT committed)
+originals/          Full-res originals kept by shrink-images.sh (NOT committed)
 tools/prepare-images.sh   Resizes full-res photos for the web (macOS sips)
+tools/shrink-images.sh    Brings oversized images down to web size
+tools/build-galleries.py  Regenerates galleries.html from images/gallery/
 ```
+
+**Back up `originals/` somewhere off this machine.** It is git-ignored, so
+it is not in any commit and not on GitHub — and `git clean -fdx` would
+delete it along with the other ignored files.
 
 ## Adding photos
 
@@ -42,10 +49,10 @@ reaching GitHub. They are active via `core.hooksPath`, so they are part of
 the repository rather than something to install by hand.
 
 - **pre-commit** — any staged image over 2000px on its long edge (or over
-  2 MB) is shrunk in place, the original filed under
-  `~/Documents/Portfolio-Originals/`, and the small version re-staged. The
-  filename never changes, so nothing in the HTML needs editing. You can just
-  drag full-res photos into a gallery folder and commit.
+  2 MB) is shrunk in place, the original filed under `originals/`, and the
+  small version re-staged. The filename never changes, so nothing in the
+  HTML needs editing. You can just drag full-res photos into a gallery
+  folder and commit.
 - **pre-push** — refuses to push if any commit on its way to GitHub carries a
   blob over 2 MB. This is the backstop for commits made with `--no-verify`.
 

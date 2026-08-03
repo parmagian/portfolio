@@ -4,8 +4,8 @@
 #
 # Any staged image whose long edge is over MAX_PX (or that is simply
 # very large on disk) is shrunk in place, its original filed away under
-# ~/Documents/Portfolio-Originals, and the shrunken version re-staged.
-# The filename never changes, so nothing in the HTML needs updating.
+# originals/ (git-ignored), and the shrunken version re-staged. The
+# filename never changes, so nothing in the HTML needs updating.
 #
 # This runs at COMMIT time rather than push time on purpose: once a big
 # file is committed it lives in the repository's history permanently, and

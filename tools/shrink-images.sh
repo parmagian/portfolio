@@ -23,7 +23,11 @@ set -euo pipefail
 
 MAX_PX=2000
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
-ARCHIVE_ROOT="$HOME/Documents/Portfolio-Originals"
+
+# Originals live inside the repo but are git-ignored (see .gitignore).
+# Keeping them here means the archive travels with the project rather than
+# sitting in a separate folder that is easy to lose track of.
+ARCHIVE_ROOT="$REPO/originals"
 
 if [ "$#" -eq 0 ]; then
   echo "usage: $0 <folder-or-image> [more...]   e.g. $0 images/hero" >&2

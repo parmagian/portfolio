@@ -6,3 +6,12 @@
 # photos that go live belong in images/gallery/<location>/.
 images/exports/*
 !images/exports/.gitkeep
+
+# Full-resolution originals, filed here by tools/shrink-images.sh whenever
+# it shrinks something. Never committed: they are the reason this repo got
+# to 145 MB once already.
+#
+# NOTE: these are real originals and some exist nowhere else. They are
+# ignored, not tracked, so `git clean -fdx` WOULD DELETE THEM. Back this
+# folder up somewhere off this machine.
+/originals/
