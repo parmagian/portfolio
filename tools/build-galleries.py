@@ -343,7 +343,6 @@ def build(locations, coords):
           <circle cx="17.6" cy="6.4" r="1.2" fill="currentColor" stroke="none" />
         </svg>
       </a>
-      <a href="#" aria-label="500px">500px</a>
     </nav>
   </footer>
 
