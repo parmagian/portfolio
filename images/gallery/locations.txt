@@ -1,0 +1,18 @@
+# Map coordinates for galleries.html
+#
+# Format:  slug | latitude | longitude
+#
+# Locations whose photographs carry GPS metadata are detected automatically
+# and do NOT need an entry here. This file is the fallback for photos whose
+# GPS was stripped during editing, and it overrides auto-detection when both
+# exist — so add a line here any time a pin lands in the wrong place.
+#
+# Values marked (approx) were set by hand, not measured from a photo.
+# Adjust them freely: drop in a real coordinate and re-run
+#     python3 tools/build-galleries.py
+
+san-francisco   | 37.8100  | -122.4770   # (approx) Lands End / Golden Gate
+santa-clara     | 37.3727  | -121.9861   # measured from earlier shoot GPS
+saratoga        | 37.2570  | -122.0430   # measured from earlier shoot GPS
+santa-cruz      | 36.9510  | -122.0770   # (approx) West Cliff Drive
+deschutes-river | 45.1720  | -121.0800   # (approx) lower river near Maupin, OR

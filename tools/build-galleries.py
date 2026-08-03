@@ -36,9 +36,9 @@ PLACEHOLDER_CYCLE = ["3x2", "2x3", "1x1"]
 
 # Placeholder shape -> (print size class, pairs-well-with-a-neighbour)
 PLACEHOLDER_SHAPE = {
-    "3x2": ("print--lg", False),
-    "2x3": ("print--sq", True),
-    "1x1": ("print--sq", True),
+    "3x2": ("print--lg", False, 300, 200),
+    "2x3": ("print--sq", True, 200, 300),
+    "1x1": ("print--sq", True, 240, 240),
 }
 
 
@@ -50,6 +50,41 @@ def dimensions(path):
     ).stdout
     nums = [int(n) for n in re.findall(r"pixel(?:Width|Height):\s*(\d+)", out)]
     return (nums[0], nums[1]) if len(nums) == 2 else (0, 0)
+
+
+def gps(path):
+    """Return (lat, lon) from a photo's metadata, or None."""
+    out = subprocess.run(
+        ["mdls", "-raw", "-name", "kMDItemLatitude", "-name", "kMDItemLongitude",
+         str(path)],
+        capture_output=True, text=True,
+    ).stdout
+    parts = [p.strip() for p in out.split("\0") if p.strip()]
+    if len(parts) != 2 or "null" in out:
+        return None
+    try:
+        return float(parts[0]), float(parts[1])
+    except ValueError:
+        return None
+
+
+def load_overrides():
+    """Parse images/gallery/locations.txt -> {slug: (lat, lon)}."""
+    f = GALLERY_DIR / "locations.txt"
+    if not f.exists():
+        return {}
+    out = {}
+    for line in f.read_text().splitlines():
+        line = line.split("#")[0].strip()
+        if not line:
+            continue
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) >= 3:
+            try:
+                out[parts[0]] = (float(parts[1]), float(parts[2]))
+            except ValueError:
+                pass
+    return out
 
 
 def size_class(ratio):
@@ -88,6 +123,8 @@ def load_captions(folder):
 def collect():
     """Build {slug: [item, ...]} where each item is a dict describing a print."""
     locations = {}
+    coords = {}
+    overrides = load_overrides()
     for folder in sorted(p for p in GALLERY_DIR.iterdir() if p.is_dir()):
         slug = folder.name
         captions = load_captions(folder)
@@ -97,7 +134,17 @@ def collect():
             p for p in folder.iterdir()
             if p.suffix.lower() in {".jpg", ".jpeg", ".png"}
         )
+        # A hand-set coordinate wins; otherwise take the first photo that
+        # still carries GPS (editing often strips it).
+        if slug in overrides:
+            coords[slug] = overrides[slug]
+
         for photo in photos:
+            if slug not in coords:
+                point = gps(photo)
+                if point:
+                    coords[slug] = point
+
             w, h = dimensions(photo)
             if not w or not h:
                 continue
@@ -112,18 +159,22 @@ def collect():
                 "pairs": pairs,
                 "title": title,
                 "subtitle": subtitle,
+                "w": w,
+                "h": h,
             })
 
         n_pad = max(MIN_PLACEHOLDERS, MIN_SLOTS - len(items))
         for i in range(n_pad):
             shape = PLACEHOLDER_CYCLE[i % len(PLACEHOLDER_CYCLE)]
-            cls, pairs = PLACEHOLDER_SHAPE[shape]
+            cls, pairs, pw, ph = PLACEHOLDER_SHAPE[shape]
             items.append({
                 "kind": "placeholder",
                 "src": f"images/placeholders/{shape}.svg",
                 "cls": cls,
                 "pairs": pairs,
                 "shape": shape,
+                "w": pw,
+                "h": ph,
             })
 
         locations[slug] = items
@@ -132,19 +183,27 @@ def collect():
     def photo_count(slug):
         return sum(1 for it in locations[slug] if it["kind"] == "photo")
 
-    return {
+    ordered = {
         slug: locations[slug]
         for slug in sorted(locations, key=lambda s: (-photo_count(s), s))
     }
+    return ordered, coords
 
 
 def figure_html(item, indent):
+    """One matted print.
+
+    width/height are always emitted: without them a lazy-loaded image
+    occupies no space until it decodes, so the page grows under the reader
+    and anchor jumps land in the wrong place.
+    """
     pad = " " * indent
+    dims = f'width="{item["w"]}" height="{item["h"]}"'
     if item["kind"] == "placeholder":
         return (
             f'{pad}<div class="print {item["cls"]} print--empty">\n'
             f'{pad}  <figure>\n'
-            f'{pad}    <img src="{item["src"]}" alt="" aria-hidden="true" />\n'
+            f'{pad}    <img src="{item["src"]}" alt="" aria-hidden="true" {dims} />\n'
             f'{pad}    <figcaption>Open slot &middot; {item["shape"].replace("x", ":")}</figcaption>\n'
             f'{pad}  </figure>\n'
             f'{pad}</div>'
@@ -152,7 +211,7 @@ def figure_html(item, indent):
     return (
         f'{pad}<div class="print {item["cls"]}">\n'
         f'{pad}  <figure>\n'
-        f'{pad}    <img src="{item["src"]}" alt="{item["title"]}" loading="lazy" />\n'
+        f'{pad}    <img src="{item["src"]}" alt="{item["title"]}" loading="lazy" {dims} />\n'
         f'{pad}    <figcaption><em>{item["title"]}</em> {item["subtitle"]}</figcaption>\n'
         f'{pad}  </figure>\n'
         f'{pad}</div>'
@@ -180,11 +239,24 @@ def layout(items, indent):
     return "\n\n".join(rows)
 
 
-def build(locations):
+def build(locations, coords):
     nav_items = "\n".join(
         f'        <li><a href="#{slug}">{title_of(slug)}</a></li>'
         for slug in locations
     )
+
+    # Map pin data — only locations we have a coordinate for.
+    pins = []
+    for slug, items in locations.items():
+        if slug not in coords:
+            continue
+        lat, lon = coords[slug]
+        pins.append(
+            '    {"slug": "%s", "name": "%s", "lat": %.6f, "lon": %.6f, "count": %d}'
+            % (slug, title_of(slug), lat, lon,
+               sum(1 for it in items if it["kind"] == "photo"))
+        )
+    pins_json = "[\n" + ",\n".join(pins) + "\n  ]"
 
     sections = []
     for slug, items in locations.items():
@@ -215,6 +287,8 @@ def build(locations):
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -235,10 +309,24 @@ def build(locations):
     <header class="galleries-header">
       <h1>Galleries</h1>
       <p class="galleries-sub">By location</p>
-      <ul class="location-nav">
-{nav_items}
-      </ul>
     </header>
+
+    <!-- Sticky: kept a direct child of <main> so it can stay pinned for the
+         whole page. Nested inside the header it would unstick immediately. -->
+    <ul class="location-nav">
+{nav_items}
+    </ul>
+
+    <div class="map-panel">
+      <div id="gallery-map" role="application"
+           aria-label="Map of photograph locations"></div>
+      <p class="map-hint">Scroll or pinch to zoom &middot; select a pin to open that gallery</p>
+      <noscript>
+        <p class="map-hint">The map needs JavaScript — use the location links above.</p>
+      </noscript>
+    </div>
+
+    <script type="application/json" id="gallery-pins">{pins_json}</script>
 
 {chr(10).join(sections)}
   </main>
@@ -252,6 +340,10 @@ def build(locations):
   </footer>
 
   <script src="js/hero.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="js/gallery-map.js"></script>
+  <script src="js/galleries.js"></script>
 </body>
 </html>
 """
@@ -260,8 +352,8 @@ def build(locations):
 def main():
     if not GALLERY_DIR.is_dir():
         sys.exit(f"No gallery directory at {GALLERY_DIR}")
-    locations = collect()
-    OUT.write_text(build(locations))
+    locations, coords = collect()
+    OUT.write_text(build(locations, coords))
 
     total_photos = sum(
         1 for items in locations.values() for it in items if it["kind"] == "photo"
@@ -272,9 +364,12 @@ def main():
     for slug, items in locations.items():
         p = sum(1 for it in items if it["kind"] == "photo")
         h = sum(1 for it in items if it["kind"] == "placeholder")
-        print(f"  {slug:<18} {p:>2} photos, {h:>2} open slots")
+        pin = f"{coords[slug][0]:.3f}, {coords[slug][1]:.3f}" if slug in coords \
+            else "NO PIN — add a line to images/gallery/locations.txt"
+        print(f"  {slug:<18} {p:>2} photos, {h:>2} open slots   {pin}")
     print(f"\nWrote {OUT.relative_to(ROOT)} — "
-          f"{len(locations)} locations, {total_photos} photos, {total_slots} slots")
+          f"{len(locations)} locations, {total_photos} photos, "
+          f"{total_slots} slots, {len(coords)} map pins")
 
 
 if __name__ == "__main__":

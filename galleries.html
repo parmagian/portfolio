@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
@@ -28,7 +30,11 @@
     <header class="galleries-header">
       <h1>Galleries</h1>
       <p class="galleries-sub">By location</p>
-      <ul class="location-nav">
+    </header>
+
+    <!-- Sticky: kept a direct child of <main> so it can stay pinned for the
+         whole page. Nested inside the header it would unstick immediately. -->
+    <ul class="location-nav">
         <li><a href="#san-francisco">San Francisco</a></li>
         <li><a href="#deschutes-river">Deschutes River</a></li>
         <li><a href="#cinque-terre">Cinque Terre</a></li>
@@ -39,8 +45,29 @@
         <li><a href="#lake-como">Lake Como</a></li>
         <li><a href="#santa-cruz">Santa Cruz</a></li>
         <li><a href="#santa-clara">Santa Clara</a></li>
-      </ul>
-    </header>
+    </ul>
+
+    <div class="map-panel">
+      <div id="gallery-map" role="application"
+           aria-label="Map of photograph locations"></div>
+      <p class="map-hint">Scroll or pinch to zoom &middot; select a pin to open that gallery</p>
+      <noscript>
+        <p class="map-hint">The map needs JavaScript — use the location links above.</p>
+      </noscript>
+    </div>
+
+    <script type="application/json" id="gallery-pins">[
+    {"slug": "san-francisco", "name": "San Francisco", "lat": 37.810000, "lon": -122.477000, "count": 7},
+    {"slug": "deschutes-river", "name": "Deschutes River", "lat": 45.172000, "lon": -121.080000, "count": 6},
+    {"slug": "cinque-terre", "name": "Cinque Terre", "lat": 44.134961, "lon": 9.683195, "count": 4},
+    {"slug": "rome", "name": "Rome", "lat": 41.905138, "lon": 12.480830, "count": 2},
+    {"slug": "saratoga", "name": "Saratoga", "lat": 37.257000, "lon": -122.043000, "count": 2},
+    {"slug": "ashland", "name": "Ashland", "lat": 42.030586, "lon": -122.560813, "count": 1},
+    {"slug": "florence", "name": "Florence", "lat": 43.773313, "lon": 11.258700, "count": 1},
+    {"slug": "lake-como", "name": "Lake Como", "lat": 45.806122, "lon": 9.086405, "count": 1},
+    {"slug": "santa-cruz", "name": "Santa Cruz", "lat": 36.951000, "lon": -122.077000, "count": 1},
+    {"slug": "santa-clara", "name": "Santa Clara", "lat": 37.372700, "lon": -121.986100, "count": 0}
+  ]</script>
 
     <section class="section gallery-section" id="san-francisco">
       <div class="section-heading">
@@ -53,35 +80,35 @@
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/san-francisco/dev03049.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/san-francisco/dev03049.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
             <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/san-francisco/dev03050.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/san-francisco/dev03050.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
             <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--sq">
           <figure>
-            <img src="images/gallery/san-francisco/dev03053.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/san-francisco/dev03053.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
             <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/san-francisco/dev03069.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/san-francisco/dev03069.jpg" alt="Untitled" loading="lazy" width="2000" height="1125" />
             <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--pano">
           <figure>
-            <img src="images/gallery/san-francisco/dev03078.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/san-francisco/dev03078.jpg" alt="Untitled" loading="lazy" width="2000" height="927" />
             <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
           </figure>
         </div>
@@ -89,13 +116,13 @@
         <div class="print-pair">
           <div class="print print--sq">
             <figure>
-              <img src="images/gallery/san-francisco/dev03084.jpg" alt="Untitled" loading="lazy" />
+              <img src="images/gallery/san-francisco/dev03084.jpg" alt="Untitled" loading="lazy" width="2000" height="2000" />
               <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
             </figure>
           </div>
           <div class="print print--sq">
             <figure>
-              <img src="images/gallery/san-francisco/dev03092.jpg" alt="Untitled" loading="lazy" />
+              <img src="images/gallery/san-francisco/dev03092.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
               <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
             </figure>
           </div>
@@ -103,14 +130,14 @@
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
 
         <div class="print print--sq print--empty">
           <figure>
-            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
             <figcaption>Open slot &middot; 2:3</figcaption>
           </figure>
         </div>
@@ -128,56 +155,56 @@
 
         <div class="print print--sq">
           <figure>
-            <img src="images/gallery/deschutes-river/dev03625.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/deschutes-river/dev03625.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
             <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/deschutes-river/dev03647.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/deschutes-river/dev03647.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
             <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--sq">
           <figure>
-            <img src="images/gallery/deschutes-river/dev03686.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/deschutes-river/dev03686.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
             <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/deschutes-river/dev03707.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/deschutes-river/dev03707.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
             <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--sq">
           <figure>
-            <img src="images/gallery/deschutes-river/dev03788.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/deschutes-river/dev03788.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
             <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/deschutes-river/dev03805.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/deschutes-river/dev03805.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
             <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
 
         <div class="print print--sq print--empty">
           <figure>
-            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
             <figcaption>Open slot &middot; 2:3</figcaption>
           </figure>
         </div>
@@ -195,7 +222,7 @@
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/cinque-terre/img_0946.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/cinque-terre/img_0946.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
             <figcaption><em>Untitled</em> Cinque Terre, Year</figcaption>
           </figure>
         </div>
@@ -203,13 +230,13 @@
         <div class="print-pair">
           <div class="print print--sq">
             <figure>
-              <img src="images/gallery/cinque-terre/img_0956.jpg" alt="Untitled" loading="lazy" />
+              <img src="images/gallery/cinque-terre/img_0956.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
               <figcaption><em>Untitled</em> Cinque Terre, Year</figcaption>
             </figure>
           </div>
           <div class="print print--sq">
             <figure>
-              <img src="images/gallery/cinque-terre/img_1077.jpg" alt="Untitled" loading="lazy" />
+              <img src="images/gallery/cinque-terre/img_1077.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
               <figcaption><em>Untitled</em> Cinque Terre, Year</figcaption>
             </figure>
           </div>
@@ -217,21 +244,21 @@
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/cinque-terre/img_1091.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/cinque-terre/img_1091.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
             <figcaption><em>Untitled</em> Cinque Terre, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
 
         <div class="print print--sq print--empty">
           <figure>
-            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
             <figcaption>Open slot &middot; 2:3</figcaption>
           </figure>
         </div>
@@ -249,21 +276,21 @@
 
         <div class="print print--sq">
           <figure>
-            <img src="images/gallery/rome/img_0799.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/rome/img_0799.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
             <figcaption><em>Untitled</em> Rome, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/rome/img_0802.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/rome/img_0802.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
             <figcaption><em>Untitled</em> Rome, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
@@ -271,13 +298,13 @@
         <div class="print-pair">
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
               <figcaption>Open slot &middot; 2:3</figcaption>
             </figure>
           </div>
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" width="240" height="240" />
               <figcaption>Open slot &middot; 1:1</figcaption>
             </figure>
           </div>
@@ -285,7 +312,7 @@
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
@@ -304,13 +331,13 @@
         <div class="print-pair">
           <div class="print print--sq">
             <figure>
-              <img src="images/gallery/saratoga/img_6963.jpg" alt="Untitled" loading="lazy" />
+              <img src="images/gallery/saratoga/img_6963.jpg" alt="Untitled" loading="lazy" width="1365" height="2000" />
               <figcaption><em>Untitled</em> Saratoga, Year</figcaption>
             </figure>
           </div>
           <div class="print print--sq">
             <figure>
-              <img src="images/gallery/saratoga/img_6965.jpg" alt="Untitled" loading="lazy" />
+              <img src="images/gallery/saratoga/img_6965.jpg" alt="Untitled" loading="lazy" width="1365" height="2000" />
               <figcaption><em>Untitled</em> Saratoga, Year</figcaption>
             </figure>
           </div>
@@ -318,7 +345,7 @@
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
@@ -326,13 +353,13 @@
         <div class="print-pair">
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
               <figcaption>Open slot &middot; 2:3</figcaption>
             </figure>
           </div>
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" width="240" height="240" />
               <figcaption>Open slot &middot; 1:1</figcaption>
             </figure>
           </div>
@@ -340,7 +367,7 @@
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
@@ -358,14 +385,14 @@
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/ashland/img_5564.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/ashland/img_5564.jpg" alt="Untitled" loading="lazy" width="2000" height="1500" />
             <figcaption><em>Untitled</em> Ashland, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
@@ -373,13 +400,13 @@
         <div class="print-pair">
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
               <figcaption>Open slot &middot; 2:3</figcaption>
             </figure>
           </div>
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" width="240" height="240" />
               <figcaption>Open slot &middot; 1:1</figcaption>
             </figure>
           </div>
@@ -387,14 +414,14 @@
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
 
         <div class="print print--sq print--empty">
           <figure>
-            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
             <figcaption>Open slot &middot; 2:3</figcaption>
           </figure>
         </div>
@@ -412,14 +439,14 @@
 
         <div class="print print--sq">
           <figure>
-            <img src="images/gallery/florence/img_0738.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/florence/img_0738.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
             <figcaption><em>Untitled</em> Florence, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
@@ -427,13 +454,13 @@
         <div class="print-pair">
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
               <figcaption>Open slot &middot; 2:3</figcaption>
             </figure>
           </div>
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" width="240" height="240" />
               <figcaption>Open slot &middot; 1:1</figcaption>
             </figure>
           </div>
@@ -441,14 +468,14 @@
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
 
         <div class="print print--sq print--empty">
           <figure>
-            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
             <figcaption>Open slot &middot; 2:3</figcaption>
           </figure>
         </div>
@@ -466,14 +493,14 @@
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/lake-como/img_0540.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/lake-como/img_0540.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
             <figcaption><em>Untitled</em> Lake Como, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
@@ -481,13 +508,13 @@
         <div class="print-pair">
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
               <figcaption>Open slot &middot; 2:3</figcaption>
             </figure>
           </div>
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" width="240" height="240" />
               <figcaption>Open slot &middot; 1:1</figcaption>
             </figure>
           </div>
@@ -495,14 +522,14 @@
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
 
         <div class="print print--sq print--empty">
           <figure>
-            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
             <figcaption>Open slot &middot; 2:3</figcaption>
           </figure>
         </div>
@@ -520,14 +547,14 @@
 
         <div class="print print--lg">
           <figure>
-            <img src="images/gallery/santa-cruz/dev03292.jpg" alt="Untitled" loading="lazy" />
+            <img src="images/gallery/santa-cruz/dev03292.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
             <figcaption><em>Untitled</em> Santa Cruz, Year</figcaption>
           </figure>
         </div>
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
@@ -535,13 +562,13 @@
         <div class="print-pair">
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
               <figcaption>Open slot &middot; 2:3</figcaption>
             </figure>
           </div>
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" width="240" height="240" />
               <figcaption>Open slot &middot; 1:1</figcaption>
             </figure>
           </div>
@@ -549,14 +576,14 @@
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
 
         <div class="print print--sq print--empty">
           <figure>
-            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
             <figcaption>Open slot &middot; 2:3</figcaption>
           </figure>
         </div>
@@ -574,7 +601,7 @@
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
@@ -582,13 +609,13 @@
         <div class="print-pair">
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
               <figcaption>Open slot &middot; 2:3</figcaption>
             </figure>
           </div>
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" width="240" height="240" />
               <figcaption>Open slot &middot; 1:1</figcaption>
             </figure>
           </div>
@@ -596,7 +623,7 @@
 
         <div class="print print--lg print--empty">
           <figure>
-            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" />
+            <img src="images/placeholders/3x2.svg" alt="" aria-hidden="true" width="300" height="200" />
             <figcaption>Open slot &middot; 3:2</figcaption>
           </figure>
         </div>
@@ -604,13 +631,13 @@
         <div class="print-pair">
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/2x3.svg" alt="" aria-hidden="true" width="200" height="300" />
               <figcaption>Open slot &middot; 2:3</figcaption>
             </figure>
           </div>
           <div class="print print--sq print--empty">
             <figure>
-              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" />
+              <img src="images/placeholders/1x1.svg" alt="" aria-hidden="true" width="240" height="240" />
               <figcaption>Open slot &middot; 1:1</figcaption>
             </figure>
           </div>
@@ -629,5 +656,9 @@
   </footer>
 
   <script src="js/hero.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="js/gallery-map.js"></script>
+  <script src="js/galleries.js"></script>
 </body>
 </html>

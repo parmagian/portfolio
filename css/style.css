@@ -27,6 +27,12 @@
 
   --section-pad: clamp(72px, 10vw, 140px);
   --page-gutter: clamp(24px, 5vw, 80px);
+
+  /* Height of the fixed nav, and of nav + stuck location bar together.
+     Section headings use the latter as scroll-margin so a jump link never
+     parks a heading underneath the chrome. */
+  --nav-h: 82px;
+  --sticky-chrome: 152px;   /* nav (82) + location bar (59) + a little air */
 }
 
 /* ── Reset ──────────────────────────────────────────────────── */
@@ -50,6 +56,7 @@ body {
 img {
   display: block;
   max-width: 100%;
+  height: auto;   /* keeps the ratio when width/height attributes are set */
 }
 
 a {
@@ -352,17 +359,61 @@ a {
   color: var(--muted);
 }
 
-/* Jump links — one per location */
+/* Jump links — one per location. Sticks below the main nav so you can
+   move between galleries from anywhere on the page. */
+/* One line, always — and crucially the same height stuck or not. An earlier
+   version collapsed two wrapped rows into one on sticking, which removed
+   ~79px of page height mid-jump and left every anchor landing short.
+   'safe center' centres the names but falls back to left-alignment rather
+   than clipping the first one when the list overflows. */
 .location-nav {
+  position: sticky;
+  top: var(--nav-h);
+  z-index: 90;            /* under .nav (100), over the map (0) */
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px clamp(18px, 3vw, 34px);
+  flex-wrap: nowrap;
+  justify-content: safe center;
   list-style: none;
-  max-width: 780px;
-  margin: 40px auto 0;
-  padding-top: 28px;
+  margin: 40px 0 0;
+  padding: 15px var(--page-gutter);
   border-top: 1px solid var(--border);
+  border-bottom: 1px solid transparent;
+  overflow-x: auto;
+  scrollbar-width: none;
+  transition: transform 0.32s ease, background 0.25s ease;
+}
+
+.location-nav::-webkit-scrollbar { display: none; }
+
+/* Sticking changes only paint, never layout. */
+.location-nav.is-stuck {
+  background: var(--nav-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top-color: transparent;
+  border-bottom-color: var(--border);
+}
+
+/* Retreats out of the way while reading downward, returns the moment you
+   scroll back up. Only ever applied once the bar is actually stuck. */
+.location-nav.is-stuck.is-hidden {
+  transform: translateY(calc(-100% - var(--nav-h)));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .location-nav { transition: none; }
+}
+
+.location-nav li { flex: 0 0 auto; }
+
+/* Dot dividers between location names. The margins either side are what
+   actually space the list out, so the dots sit centred between names. */
+.location-nav li + li::before {
+  content: "\00B7";
+  margin: 0 clamp(11px, 1.8vw, 20px);
+  color: #C6BEB4;
+  font-size: 0.7rem;
+  vertical-align: 0.05em;
 }
 
 .location-nav a {
@@ -371,15 +422,109 @@ a {
   letter-spacing: var(--tracking);
   text-transform: uppercase;
   color: var(--muted);
+  white-space: nowrap;
   transition: color 0.2s ease;
 }
 
-.location-nav a:hover { color: var(--fg); }
+.location-nav a:hover,
+.location-nav a.is-active { color: var(--fg); }
 
-/* Each location's section. scroll-margin keeps the fixed nav from
-   covering the heading when a jump link is followed. */
+/* ── Location Map ───────────────────────────────────────────── */
+.map-panel {
+  max-width: 1040px;
+  margin: clamp(36px, 5vw, 56px) auto 0;
+}
+
+#gallery-map {
+  height: clamp(300px, 46vh, 460px);
+  background: var(--wall-deep);
+  border: 1px solid var(--border);
+  box-shadow: var(--print-shadow);
+  z-index: 0;   /* keep Leaflet panes below the fixed nav */
+}
+
+.map-hint {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Pins — a warm dot carrying the photograph count */
+.map-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(42, 39, 35, 0.88);
+  color: #F6F3EE;
+  border: 2px solid var(--mat);
+  box-shadow: 0 2px 8px rgba(42, 39, 35, 0.3);
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.map-pin-wrap:hover .map-pin {
+  transform: scale(1.12);
+  background: rgba(42, 39, 35, 1);
+}
+
+/* Grouped pins read lighter than a single location, with a ring to
+   suggest there is more than one gallery inside. */
+.map-pin--cluster {
+  background: rgba(42, 39, 35, 0.72);
+  box-shadow:
+    0 0 0 4px rgba(246, 243, 238, 0.55),
+    0 2px 10px rgba(42, 39, 35, 0.28);
+}
+
+.map-tooltip {
+  font-family: var(--sans);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  color: var(--fg);
+  background: var(--mat);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: var(--print-shadow);
+  padding: 6px 10px;
+}
+
+.map-tooltip::before { display: none; }   /* drop Leaflet's arrow */
+
+/* Leaflet's own chrome, toned down to match the gallery */
+.leaflet-container {
+  font-family: var(--sans);
+  background: var(--wall-deep);
+}
+
+.leaflet-control-attribution {
+  font-size: 0.55rem;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--muted);
+}
+
+.leaflet-control-attribution a { color: var(--fg); }
+
+.leaflet-bar a {
+  color: var(--fg);
+  border-bottom-color: var(--border);
+}
+
+/* Each location's section. scroll-margin clears both the fixed nav and the
+   stuck location bar when a jump link is followed. */
 .gallery-section {
-  scroll-margin-top: 72px;
+  scroll-margin-top: var(--sticky-chrome);
+  padding-top: clamp(48px, 6vw, 90px);
 }
 
 .gallery-count {
