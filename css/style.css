@@ -459,11 +459,15 @@ a {
 
 #gallery-map {
   height: clamp(300px, 46vh, 460px);
-  background: var(--wall-deep);
+  /* Matches the basemap's ocean. At fractional zoom Leaflet scales the tile
+     layer, and sub-pixel gaps between tiles let the background show through
+     as a faint grid; against the ocean colour those seams disappear. */
+  background: #d5d6d7;
   border: 1px solid var(--border);
   box-shadow: var(--print-shadow);
   z-index: 0;   /* keep Leaflet panes below the fixed nav */
 }
+
 
 .map-hint {
   margin-top: 14px;
@@ -526,7 +530,7 @@ a {
 /* Leaflet's own chrome, toned down to match the gallery */
 .leaflet-container {
   font-family: var(--sans);
-  background: var(--wall-deep);
+  background: #d5d6d7;   /* ocean colour — see #gallery-map above */
 }
 
 .leaflet-control-attribution {
