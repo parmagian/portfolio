@@ -1,0 +1,70 @@
+#!/bin/bash
+# ============================================================
+# pre-commit — keep full-resolution photographs out of the repo.
+#
+# Any staged image whose long edge is over MAX_PX (or that is simply
+# very large on disk) is shrunk in place, its original filed away under
+# ~/Documents/Portfolio-Originals, and the shrunken version re-staged.
+# The filename never changes, so nothing in the HTML needs updating.
+#
+# This runs at COMMIT time rather than push time on purpose: once a big
+# file is committed it lives in the repository's history permanently, and
+# blocking the push afterwards is already too late to help.
+#
+# To skip it deliberately:  git commit --no-verify
+# ============================================================
+
+set -uo pipefail
+
+MAX_PX=2000
+MAX_BYTES=$((2 * 1024 * 1024))   # 2 MB
+
+REPO="$(git rev-parse --show-toplevel)"
+SHRINK="$REPO/tools/shrink-images.sh"
+
+[ -x "$SHRINK" ] || [ -f "$SHRINK" ] || exit 0
+
+# Staged images (added, copied or modified).
+staged=$(git diff --cached --name-only --diff-filter=ACM -z |
+         tr '\0' '\n' | grep -Ei '\.(jpg|jpeg|png)$' || true)
+[ -z "$staged" ] && exit 0
+
+oversized=()
+while IFS= read -r rel; do
+  [ -z "$rel" ] && continue
+  f="$REPO/$rel"
+  [ -f "$f" ] || continue
+
+  bytes=$(stat -f%z "$f" 2>/dev/null || echo 0)
+
+  dims=$(sips -g pixelWidth -g pixelHeight "$f" 2>/dev/null |
+         awk '/pixelWidth|pixelHeight/{printf "%s ", $2}')
+  w=$(printf '%s' "$dims" | awk '{print $1}')
+  h=$(printf '%s' "$dims" | awk '{print $2}')
+  long=0
+  [ -n "$w" ] && [ -n "$h" ] && { long=$w; [ "$h" -gt "$w" ] && long=$h; }
+
+  if [ "$long" -gt "$MAX_PX" ] || [ "$bytes" -gt "$MAX_BYTES" ]; then
+    oversized+=("$rel")
+  fi
+done <<< "$staged"
+
+[ ${#oversized[@]} -eq 0 ] && exit 0
+
+echo "pre-commit: ${#oversized[@]} full-resolution image(s) staged — shrinking to web size"
+echo
+
+bash "$SHRINK" "${oversized[@]}" || {
+  echo
+  echo "pre-commit: resize failed. Commit stopped so nothing oversized slips in." >&2
+  echo "Fix the images, or bypass with: git commit --no-verify" >&2
+  exit 1
+}
+
+# Re-stage the shrunken versions so the commit contains those, not the originals.
+for rel in "${oversized[@]}"; do
+  [ -f "$REPO/$rel" ] && git add -- "$rel"
+done
+
+echo "pre-commit: re-staged the web-sized versions — carrying on with the commit."
+exit 0

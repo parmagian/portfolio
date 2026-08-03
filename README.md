@@ -35,6 +35,36 @@ from — committing all of it once put 145 MB into the repository.
 **Always publish the resized copies, not the originals.** Full-res files are
 8–14 MB each; the resized ones are around 300 KB.
 
+## Oversized images are caught automatically
+
+Two git hooks in `tools/hooks/` guard against full-resolution photographs
+reaching GitHub. They are active via `core.hooksPath`, so they are part of
+the repository rather than something to install by hand.
+
+- **pre-commit** — any staged image over 2000px on its long edge (or over
+  2 MB) is shrunk in place, the original filed under
+  `~/Documents/Portfolio-Originals/`, and the small version re-staged. The
+  filename never changes, so nothing in the HTML needs editing. You can just
+  drag full-res photos into a gallery folder and commit.
+- **pre-push** — refuses to push if any commit on its way to GitHub carries a
+  blob over 2 MB. This is the backstop for commits made with `--no-verify`.
+
+Both can be skipped deliberately with `--no-verify` if you ever need to.
+
+After a fresh clone, re-point git at the hooks once:
+
+```
+git config core.hooksPath tools/hooks
+```
+
+To shrink images by hand at any time — safe to re-run, it skips anything
+already web-sized:
+
+```
+./tools/shrink-images.sh images/hero
+./tools/shrink-images.sh images/gallery/rome
+```
+
 ## Publishing updates
 
 ```

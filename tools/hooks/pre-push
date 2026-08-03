@@ -1,0 +1,62 @@
+#!/bin/bash
+# ============================================================
+# pre-push — last check before anything reaches GitHub.
+#
+# Inspects every blob in the commits about to be pushed. If a large
+# image is among them the push is refused, because once it lands on the
+# remote it is in that history for good and only a force-push and a
+# rewrite will get it out.
+#
+# The pre-commit hook normally shrinks these before they are committed,
+# so this only fires for commits made with --no-verify, made before the
+# hooks existed, or pulled in from elsewhere.
+#
+# To skip it deliberately:  git push --no-verify
+# ============================================================
+
+set -uo pipefail
+
+MAX_BYTES=$((2 * 1024 * 1024))   # 2 MB
+EMPTY_TREE=0000000000000000000000000000000000000000
+
+problems=""
+
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [ "$local_sha" = "$EMPTY_TREE" ] && continue          # branch deletion
+
+  if [ "$remote_sha" = "$EMPTY_TREE" ]; then
+    range="$local_sha"                                   # new branch
+  else
+    range="$remote_sha..$local_sha"
+  fi
+
+  # Every blob introduced by these commits, with its size.
+  entries=$(git rev-list --objects $range --not --remotes 2>/dev/null |
+            git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' 2>/dev/null |
+            awk -v max="$MAX_BYTES" '$1 == "blob" && $3 > max {
+              name = ""
+              for (i = 4; i <= NF; i++) name = name (i > 4 ? " " : "") $i
+              printf "  %-46s %.1f MB\n", name, $3/1048576
+            }')
+
+  [ -n "$entries" ] && problems="$problems$entries"$'\n'
+done
+
+if [ -n "$problems" ]; then
+  echo >&2
+  echo "pre-push: refusing to push — these files are over 2 MB:" >&2
+  echo >&2
+  printf '%s' "$problems" >&2
+  echo >&2
+  echo "Large images pushed to GitHub stay in the repository history for good." >&2
+  echo >&2
+  echo "To fix, for images already committed:" >&2
+  echo "  ./tools/shrink-images.sh images/gallery      # or whichever folder" >&2
+  echo "  git add -A && git commit --amend --no-edit   # if it was the last commit" >&2
+  echo >&2
+  echo "Or push anyway with:  git push --no-verify" >&2
+  echo >&2
+  exit 1
+fi
+
+exit 0

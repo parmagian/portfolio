@@ -25,17 +25,27 @@ MAX_PX=2000
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 ARCHIVE_ROOT="$HOME/Documents/Portfolio-Originals"
 
-TARGET="${1:-}"
-if [ -z "$TARGET" ]; then
-  echo "usage: $0 <folder-inside-repo>   e.g. $0 images/hero" >&2
+if [ "$#" -eq 0 ]; then
+  echo "usage: $0 <folder-or-image> [more...]   e.g. $0 images/hero" >&2
   exit 1
 fi
 
-SRC="$REPO/${TARGET#"$REPO"/}"
-if [ ! -d "$SRC" ]; then
-  echo "no such folder: $SRC" >&2
-  exit 1
-fi
+# Accepts folders or individual files, so the pre-commit hook can hand it
+# exactly the images being committed rather than rescanning everything.
+LIST=$(mktemp)
+trap 'rm -f "$LIST"' EXIT
+
+for arg in "$@"; do
+  path="$REPO/${arg#"$REPO"/}"
+  if [ -d "$path" ]; then
+    find "$path" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) \
+      -print0 >> "$LIST"
+  elif [ -f "$path" ]; then
+    printf '%s\0' "$path" >> "$LIST"
+  else
+    echo "  ?  no such file or folder: $arg" >&2
+  fi
+done
 
 shrunk=0; skipped=0; freed=0
 
@@ -86,9 +96,11 @@ while IFS= read -r -d '' f; do
     rm -f "$tmp"
     echo "  !!  $rel — resize failed, original untouched"
   fi
-done < <(find "$SRC" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0)
+done < "$LIST"
 
 echo
 echo "shrunk $shrunk, already web-sized $skipped"
 echo "saved $(echo "$freed" | awk '{printf "%.1f MB", $1/1048576}')"
-echo "originals archived under $ARCHIVE_ROOT"
+[ "$shrunk" -gt 0 ] && echo "originals archived under $ARCHIVE_ROOT"
+
+exit 0
