@@ -13,8 +13,9 @@
 #   - Saves web-ready JPEGs into images/exports/, mirroring subfolders
 #   - Skips files already exported (safe to re-run)
 #
-# Result: images/exports/ stays small enough to live in the git
-# repo (~0.5 MB per photo) while your originals stay untouched.
+# Result: images/exports/ is a local staging library (~0.5 MB per photo)
+# to pick published photos from. It is git-ignored — copy the ones you
+# want into images/gallery/<location>/. Your originals stay untouched.
 # ============================================================
 
 set -euo pipefail
