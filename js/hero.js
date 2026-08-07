@@ -1,16 +1,20 @@
 /**
  * hero.js — Featured-print swipe + nav scroll behaviour
  *
- * The hero shows one photograph at a time inside the matted frame. Every
- * HOLD_MS the current print drifts leftwards and fades out while the next
- * arrives from the right, so the change reads as a swipe rather than a
- * dissolve happening in one spot.
+ * Each photograph sits in its own mat, and the whole framed print swipes:
+ * every HOLD_MS the current print travels left and fades out while the
+ * next arrives from the right.
+ *
+ * Because the prints are absolutely positioned they contribute no height,
+ * so the stage is given the height of whichever print is showing, and that
+ * height is transitioned — a portrait and a panorama are very different
+ * shapes and the page below should settle rather than jump.
  */
 
 (function () {
   'use strict';
 
-  var HOLD_MS = 7000; // time each image stays fully visible
+  var HOLD_MS = 7000; // time each print stays fully visible
 
   /* ── Nav: solid background once scrolled past the top ─────── */
   var nav = document.querySelector('.nav');
@@ -22,31 +26,48 @@
     check();
   }
 
-  /* ── Hero crossfade ───────────────────────────────────────── */
-  var frame = document.querySelector('.hero-frame');
-  if (!frame) return;
+  /* ── Hero swipe ───────────────────────────────────────────── */
+  var stage = document.querySelector('.hero-stage');
+  if (!stage) return;
 
-  var print = frame.closest('.hero-print') || frame;
-  var imgs = Array.prototype.slice.call(frame.querySelectorAll('img'));
-  if (!imgs.length) return;
+  var prints = Array.prototype.slice.call(stage.querySelectorAll('.hero-print'));
+  if (!prints.length) return;
 
-  /* Match the mat to the visible image's shape. If the image hasn't
-     loaded yet its natural size is 0, so wait and only apply if it's
-     still the one on display. */
-  var setRatio = function (img) {
+  /* Shape each mat to its own photograph. Until an image has loaded its
+     natural size is 0, so the width falls back to the CSS default and is
+     corrected once the file arrives. */
+  function shape(print) {
+    var img = print.querySelector('img');
+    if (!img) return;
     if (img.naturalWidth && img.naturalHeight) {
-      print.style.setProperty('--ratio', (img.naturalWidth / img.naturalHeight).toFixed(4));
+      print.style.setProperty(
+        '--ratio', (img.naturalWidth / img.naturalHeight).toFixed(4)
+      );
     } else {
       img.addEventListener('load', function () {
-        if (img.classList.contains('visible')) setRatio(img);
+        shape(print);
+        if (print.classList.contains('visible')) sizeStage(print);
       }, { once: true });
     }
-  };
+  }
 
-  setRatio(imgs[0]);
-  if (imgs.length < 2) return;
+  function sizeStage(print) {
+    stage.style.setProperty('--stage-h', print.offsetHeight + 'px');
+  }
 
-  /* How long the swipe runs, read from CSS so the two never drift apart. */
+  prints.forEach(shape);
+
+  var current = 0;
+  sizeStage(prints[current]);
+
+  // Width changes alter every print's height, so re-measure the live one.
+  window.addEventListener('resize', function () {
+    sizeStage(prints[current]);
+  }, { passive: true });
+
+  if (prints.length < 2) return;
+
+  /* Swipe duration is read from CSS so the two can't drift apart. */
   function swipeMs() {
     var raw = getComputedStyle(document.documentElement)
       .getPropertyValue('--hero-swipe').trim();
@@ -54,27 +75,25 @@
     return /ms$/.test(raw) ? n : n * 1000;
   }
 
-  var current = 0;
-
   setInterval(function () {
-    var outgoing = imgs[current];
-    current = (current + 1) % imgs.length;
-    var incoming = imgs[current];
+    var outgoing = prints[current];
+    current = (current + 1) % prints.length;
+    var incoming = prints[current];
 
     outgoing.classList.remove('visible');
-    outgoing.classList.add('leaving');      // drifts left, fades out
-    incoming.classList.add('visible');      // arrives from the right
-    setRatio(incoming);
+    outgoing.classList.add('leaving');   // travels left, fades out
+    incoming.classList.add('visible');   // arrives from the right
+    sizeStage(incoming);
 
-    /* Once it has gone, put the outgoing print back on the right ready for
-       its next turn. Transitions are switched off for that one frame,
-       otherwise it would slide back across the mat in full view. The
-       reflow read is what forces the browser to apply the parked position
-       before transitions are allowed again. */
+    /* Once it has gone, return the outgoing print to the right-hand
+       waiting position. Transitions are suppressed for that one frame,
+       otherwise it would glide back across the page in full view. The
+       offsetWidth read forces the browser to apply the parked position
+       before transitions are switched back on. */
     setTimeout(function () {
       outgoing.classList.add('no-transition');
       outgoing.classList.remove('leaving');
-      void outgoing.offsetWidth;            // flush the change
+      void outgoing.offsetWidth;
       outgoing.classList.remove('no-transition');
     }, swipeMs());
   }, HOLD_MS);

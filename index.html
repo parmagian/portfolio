@@ -25,17 +25,27 @@
     </ul>
   </nav>
 
-  <!-- ── Hero — featured print with slow crossfade ───────────── -->
+  <!-- ── Hero — featured prints, swiping left ────────────────── -->
   <!-- REPLACE WITH REAL IMAGES: swap the src paths below for your
-       featured landscapes. 3–5 images, landscape orientation. -->
+       featured landscapes. 3–5 images, any orientation.
+
+       Each photograph gets its OWN mat, so the whole framed print swipes
+       across rather than the picture changing inside a fixed frame. To add
+       one, copy a .hero-print block and drop in the new file. -->
   <header class="hero">
-    <div class="hero-print">
-      <div class="hero-frame" aria-label="Featured photograph">
-        <img src="images/hero/hero-1.jpg" alt="Featured landscape photograph" class="visible" />
+    <div class="hero-stage" aria-label="Featured photograph">
+      <figure class="hero-print visible">
+        <img src="images/hero/hero-1.jpg" alt="Featured landscape photograph" />
+      </figure>
+      <figure class="hero-print">
         <img src="images/hero/hero-2.jpg" alt="" aria-hidden="true" />
+      </figure>
+      <figure class="hero-print">
         <img src="images/hero/hero-3.jpg" alt="" aria-hidden="true" />
+      </figure>
+      <figure class="hero-print">
         <img src="images/hero/hero-4.jpg" alt="" aria-hidden="true" />
-      </div>
+      </figure>
     </div>
     <h1 class="hero-title">Gian</h1>
     <p class="hero-sub">Landscape Photography</p>

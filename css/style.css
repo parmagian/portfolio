@@ -34,10 +34,11 @@
   --nav-h: 82px;
   --sticky-chrome: 152px;   /* nav (82) + location bar (59) + a little air */
 
-  /* Hero swipe: how far a print travels, and how long it takes.
-     Distance is a share of the frame width, so it reads the same on a
-     phone as on a desktop. Raise it towards 100% for a hard carousel. */
-  --hero-slide: 9%;
+  /* Hero swipe: how far a framed print travels, and how long it takes.
+     Distance is a share of the print's own width, so it reads the same on
+     a phone as on a desktop. Raise it towards 100% for a hard carousel
+     where each print clears the stage completely. */
+  --hero-slide: 16%;
   --hero-swipe: 1.35s;
 }
 
@@ -130,73 +131,75 @@ a {
   text-align: center;
 }
 
-/* The framed featured photograph.
-   --ratio (width/height, set by hero.js per image) drives both the
-   frame shape and a height cap: 68svh * ratio converts "max 68% of
-   the viewport tall" into a width, so portraits stay on screen. */
-.hero-print {
+/* The stage the prints travel across. Each photograph carries its own mat,
+   so it is the whole framed print — white border and all — that swipes,
+   rather than the picture changing inside a frame that stays put.
+   Height is set by hero.js to match whichever print is showing, since a
+   portrait and a panorama are nowhere near the same height. */
+.hero-stage {
   position: relative;
+  width: 100%;
+  max-width: 880px;
+  height: var(--stage-h, 60svh);
+  transition: height var(--hero-swipe) cubic-bezier(0.33, 0, 0.2, 1);
+}
+
+/* A single matted print. --ratio (width/height) is set per print by
+   hero.js from that photograph's own dimensions; 68svh * ratio turns
+   "at most 68% of the viewport tall" into a width, so portraits and
+   panoramas both stay on screen.
+
+   Three states:
+     (default)  waiting off to the right, invisible
+     .visible   centred and opaque
+     .leaving   swiped off to the left and faded out
+   Centring is part of the transform, so each state carries the -50%. */
+.hero-print {
+  position: absolute;
+  top: 0;
+  left: 50%;
   width: min(880px, 100%, calc(68svh * var(--ratio, 1.5)));
+  margin: 0;
   background: var(--mat);
   padding: clamp(14px, 2.2vw, 26px);   /* the mat */
   box-shadow: var(--print-shadow);
-  transition: width 1.2s ease;
-}
-
-.hero-print .hero-frame {
-  position: relative;
-  aspect-ratio: var(--ratio, 1.5);
-  overflow: hidden;
-  background: var(--mat);
-  transition: aspect-ratio 1.2s ease;
-}
-
-/* Stacked images that swipe leftwards as they change.
-   object-fit: contain — any aspect ratio (2:3, 1:1, panoramic) fits
-   inside the frame; the white mat fills the rest, exactly like matting a
-   print to a standard frame size. Nothing gets cropped.
-
-   Three states, and the order matters:
-     (default)  parked off to the right, invisible — the next print waiting
-     .visible   centred and opaque
-     .leaving   drifted off to the left and faded out
-   The frame clips the overflow, so prints enter and exit behind the mat. */
-.hero-frame img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
   opacity: 0;
-  transform: translateX(var(--hero-slide));
+  transform: translateX(calc(-50% + var(--hero-slide)));
   transition:
     opacity var(--hero-swipe) ease,
     transform var(--hero-swipe) cubic-bezier(0.33, 0, 0.2, 1);
 }
 
-.hero-frame img.visible {
+.hero-print.visible {
   opacity: 1;
-  transform: translateX(0);
+  transform: translateX(-50%);
 }
 
-.hero-frame img.leaving {
+.hero-print.leaving {
   opacity: 0;
-  transform: translateX(calc(var(--hero-slide) * -1));
+  transform: translateX(calc(-50% - var(--hero-slide)));
 }
 
-/* Used for a single frame while an outgoing print is moved from the left
-   back to its waiting spot on the right — without this it would visibly
-   slide back across the mat. */
-.hero-frame img.no-transition { transition: none; }
+/* Held for a single frame while an outgoing print is returned to its
+   waiting spot on the right — without it, the print would visibly glide
+   back across the page. */
+.hero-print.no-transition { transition: none; }
+
+.hero-print img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
 
 /* A swipe is decorative. Readers who ask for less motion get the fade. */
 @media (prefers-reduced-motion: reduce) {
-  .hero-frame img,
-  .hero-frame img.visible,
-  .hero-frame img.leaving {
-    transform: none;
+  .hero-print,
+  .hero-print.visible,
+  .hero-print.leaving {
+    transform: translateX(-50%);
     transition: opacity var(--hero-swipe) ease;
   }
+  .hero-stage { transition: none; }
 }
 
 .hero-title {
