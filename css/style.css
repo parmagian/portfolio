@@ -33,6 +33,12 @@
      parks a heading underneath the chrome. */
   --nav-h: 82px;
   --sticky-chrome: 152px;   /* nav (82) + location bar (59) + a little air */
+
+  /* Hero swipe: how far a print travels, and how long it takes.
+     Distance is a share of the frame width, so it reads the same on a
+     phone as on a desktop. Raise it towards 100% for a hard carousel. */
+  --hero-slide: 9%;
+  --hero-swipe: 1.35s;
 }
 
 /* ── Reset ──────────────────────────────────────────────────── */
@@ -145,10 +151,16 @@ a {
   transition: aspect-ratio 1.2s ease;
 }
 
-/* Stacked crossfading images.
+/* Stacked images that swipe leftwards as they change.
    object-fit: contain — any aspect ratio (2:3, 1:1, panoramic) fits
-   inside the 3:2 frame; the white mat fills the rest, exactly like
-   matting a print to a standard frame size. Nothing gets cropped. */
+   inside the frame; the white mat fills the rest, exactly like matting a
+   print to a standard frame size. Nothing gets cropped.
+
+   Three states, and the order matters:
+     (default)  parked off to the right, invisible — the next print waiting
+     .visible   centred and opaque
+     .leaving   drifted off to the left and faded out
+   The frame clips the overflow, so prints enter and exit behind the mat. */
 .hero-frame img {
   position: absolute;
   inset: 0;
@@ -156,10 +168,36 @@ a {
   height: 100%;
   object-fit: contain;
   opacity: 0;
-  transition: opacity 2.4s ease;
+  transform: translateX(var(--hero-slide));
+  transition:
+    opacity var(--hero-swipe) ease,
+    transform var(--hero-swipe) cubic-bezier(0.33, 0, 0.2, 1);
 }
 
-.hero-frame img.visible { opacity: 1; }
+.hero-frame img.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.hero-frame img.leaving {
+  opacity: 0;
+  transform: translateX(calc(var(--hero-slide) * -1));
+}
+
+/* Used for a single frame while an outgoing print is moved from the left
+   back to its waiting spot on the right — without this it would visibly
+   slide back across the mat. */
+.hero-frame img.no-transition { transition: none; }
+
+/* A swipe is decorative. Readers who ask for less motion get the fade. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-frame img,
+  .hero-frame img.visible,
+  .hero-frame img.leaving {
+    transform: none;
+    transition: opacity var(--hero-swipe) ease;
+  }
+}
 
 .hero-title {
   margin-top: 44px;
