@@ -136,12 +136,15 @@ a {
    rather than the picture changing inside a frame that stays put.
    Height is set by hero.js to match whichever print is showing, since a
    portrait and a panorama are nowhere near the same height. */
+/* Height is fixed to the tallest print rather than following whichever one
+   is showing. An animated height moved every print vertically mid-swipe,
+   and combined with the sideways travel the motion read as a diagonal.
+   A stable stage also stops the page below shuffling between photographs. */
 .hero-stage {
   position: relative;
   width: 100%;
   max-width: 880px;
   height: var(--stage-h, 60svh);
-  transition: height var(--hero-swipe) cubic-bezier(0.33, 0, 0.2, 1);
 }
 
 /* A single matted print. --ratio (width/height) is set per print by
@@ -153,10 +156,14 @@ a {
      (default)  waiting off to the right, invisible
      .visible   centred and opaque
      .leaving   swiped off to the left and faded out
-   Centring is part of the transform, so each state carries the -50%. */
+   Every print is pinned to the same centre point — top: 50% plus a -50%
+   in the transform — so photographs of different shapes share one axis and
+   the swipe stays perfectly horizontal. Top-aligning them instead gave a
+   portrait and a panorama different vertical centres, and against the
+   sideways travel that read as movement on a diagonal. */
 .hero-print {
   position: absolute;
-  top: 0;
+  top: 50%;
   left: 50%;
   width: min(880px, 100%, calc(68svh * var(--ratio, 1.5)));
   margin: 0;
@@ -164,7 +171,7 @@ a {
   padding: clamp(14px, 2.2vw, 26px);   /* the mat */
   box-shadow: var(--print-shadow);
   opacity: 0;
-  transform: translateX(calc(-50% + var(--hero-slide)));
+  transform: translate(calc(-50% + var(--hero-slide)), -50%);
   transition:
     opacity var(--hero-swipe) ease,
     transform var(--hero-swipe) cubic-bezier(0.33, 0, 0.2, 1);
@@ -172,12 +179,12 @@ a {
 
 .hero-print.visible {
   opacity: 1;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 }
 
 .hero-print.leaving {
   opacity: 0;
-  transform: translateX(calc(-50% - var(--hero-slide)));
+  transform: translate(calc(-50% - var(--hero-slide)), -50%);
 }
 
 /* Held for a single frame while an outgoing print is returned to its
@@ -196,10 +203,9 @@ a {
   .hero-print,
   .hero-print.visible,
   .hero-print.leaving {
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     transition: opacity var(--hero-swipe) ease;
   }
-  .hero-stage { transition: none; }
 }
 
 .hero-title {

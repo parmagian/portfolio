@@ -6,9 +6,11 @@
  * next arrives from the right.
  *
  * Because the prints are absolutely positioned they contribute no height,
- * so the stage is given the height of whichever print is showing, and that
- * height is transitioned — a portrait and a panorama are very different
- * shapes and the page below should settle rather than jump.
+ * so the stage is given one — the height of the TALLEST print. Sizing it to
+ * whichever print was showing meant the stage resized on every change,
+ * which nudged the prints vertically as they travelled and made the swipe
+ * look like it ran on a diagonal. A fixed stage also keeps the page below
+ * still between photographs.
  */
 
 (function () {
@@ -46,24 +48,29 @@
     } else {
       img.addEventListener('load', function () {
         shape(print);
-        if (print.classList.contains('visible')) sizeStage(print);
+        sizeStage();   // a newly measured print may be the tallest
       }, { once: true });
     }
   }
 
-  function sizeStage(print) {
-    stage.style.setProperty('--stage-h', print.offsetHeight + 'px');
+  /* Tallest print wins, so the stage never changes size and nothing drifts
+     vertically mid-swipe. Prints are laid out even while parked and
+     invisible, so every one of them measures correctly here. */
+  function sizeStage() {
+    var tallest = 0;
+    prints.forEach(function (p) {
+      if (p.offsetHeight > tallest) tallest = p.offsetHeight;
+    });
+    if (tallest) stage.style.setProperty('--stage-h', tallest + 'px');
   }
 
   prints.forEach(shape);
 
   var current = 0;
-  sizeStage(prints[current]);
+  sizeStage();
 
-  // Width changes alter every print's height, so re-measure the live one.
-  window.addEventListener('resize', function () {
-    sizeStage(prints[current]);
-  }, { passive: true });
+  // Width changes alter every print's height, so measure them all again.
+  window.addEventListener('resize', sizeStage, { passive: true });
 
   if (prints.length < 2) return;
 
@@ -83,7 +90,6 @@
     outgoing.classList.remove('visible');
     outgoing.classList.add('leaving');   // travels left, fades out
     incoming.classList.add('visible');   // arrives from the right
-    sizeStage(incoming);
 
     /* Once it has gone, return the outgoing print to the right-hand
        waiting position. Transitions are suppressed for that one frame,
