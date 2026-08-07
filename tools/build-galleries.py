@@ -289,7 +289,7 @@ def build(locations, coords):
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style.css?v=2" />
 </head>
 <body>
 
@@ -346,11 +346,11 @@ def build(locations, coords):
     </nav>
   </footer>
 
-  <script src="js/hero.js"></script>
+  <script src="js/hero.js?v=2"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-  <script src="js/gallery-map.js"></script>
-  <script src="js/galleries.js"></script>
+  <script src="js/gallery-map.js?v=2"></script>
+  <script src="js/galleries.js?v=2"></script>
 </body>
 </html>
 """

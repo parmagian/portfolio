@@ -80,6 +80,26 @@ git add -A && git commit -m "update" && git push
 
 The site rebuilds automatically within a minute or so.
 
+### If you change CSS or JS, bump the version
+
+Stylesheets and scripts are linked with a version marker:
+
+```
+<link rel="stylesheet" href="css/style.css?v=2" />
+<script src="js/hero.js?v=2"></script>
+```
+
+GitHub Pages tells browsers to cache files for ten minutes. Without the
+marker a visitor can end up with new HTML and the previous stylesheet —
+which is exactly how the hero page once rendered four stacked photographs
+instead of one. Changing the number makes it a new URL, so every browser
+fetches the new file immediately.
+
+**When you edit `css/style.css` or anything in `js/`, raise the number in
+every page** (`index.html`, `about.html`, `contact.html`, and the template
+near the top of `tools/build-galleries.py`), then re-run the gallery build.
+Editing only HTML or adding photos needs no bump.
+
 ### Push troubleshooting
 
 Large pushes from this machine drop repeatedly on standard SSH (port 22) and
