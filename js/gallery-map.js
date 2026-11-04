@@ -1,5 +1,5 @@
 /**
- * gallery-map.js — the location map on galleries.html
+ * gallery-map.js — the location map on the gallery homepage (index.html)
  *
  * Reads pin data emitted by tools/build-galleries.py into the
  * #gallery-pins JSON block, drops a marker per location sized by how many

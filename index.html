@@ -4,136 +4,461 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gian — Landscape Photography</title>
-  <meta name="description" content="Fine-art landscape photography by Gian." />
-
-  <!-- Google Fonts: Cormorant Garamond (headlines) + Inter (captions/UI) -->
+  <meta name="description" content="Landscape photography galleries by location." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="css/style.css?v=3" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="css/style.css?v=4" />
 </head>
 <body>
 
-  <!-- ── Navigation ──────────────────────────────────────────── -->
-  <nav class="nav">
+  <!-- GENERATED FILE — edit captions in images/gallery/<location>/captions.txt
+       and re-run: python3 tools/build-galleries.py -->
+
+  <nav class="nav scrolled">
     <a href="index.html" class="nav-logo">Gian</a>
     <ul class="nav-links">
-      <li><a href="galleries.html">Galleries</a></li>
+      <li><a href="index.html" aria-current="page">Galleries</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
   </nav>
 
-  <!-- ── Hero — featured prints, swiping left ────────────────── -->
-  <!-- REPLACE WITH REAL IMAGES: swap the src paths below for your
-       featured landscapes. 3–5 images, any orientation.
+  <main>
+    <header class="galleries-header">
+      <h1>Galleries</h1>
+      <p class="galleries-sub">By location</p>
+    </header>
 
-       Each photograph gets its OWN mat, so the whole framed print swipes
-       across rather than the picture changing inside a fixed frame. To add
-       one, copy a .hero-print block and drop in the new file. -->
-  <header class="hero">
-    <div class="hero-stage" aria-label="Featured photograph">
-      <figure class="hero-print visible">
-        <img src="images/hero/hero-1.jpg" alt="Featured landscape photograph" />
-      </figure>
-      <figure class="hero-print">
-        <img src="images/hero/hero-2.jpg" alt="" aria-hidden="true" />
-      </figure>
-      <figure class="hero-print">
-        <img src="images/hero/hero-3.jpg" alt="" aria-hidden="true" />
-      </figure>
-      <figure class="hero-print">
-        <img src="images/hero/hero-4.jpg" alt="" aria-hidden="true" />
-      </figure>
-    </div>
-    <h1 class="hero-title">Gian</h1>
-    <p class="hero-sub">Landscape Photography</p>
-  </header>
+    <!-- Sticky: kept a direct child of <main> so it can stay pinned for the
+         whole page. Nested inside the header it would unstick immediately. -->
+    <ul class="location-nav">
+        <li><a href="#new-york">New York</a></li>
+        <li><a href="#san-francisco">San Francisco</a></li>
+        <li><a href="#deschutes-river">Deschutes River</a></li>
+        <li><a href="#cinque-terre">Cinque Terre</a></li>
+        <li><a href="#lake-como">Lake Como</a></li>
+        <li><a href="#florence">Florence</a></li>
+        <li><a href="#rome">Rome</a></li>
+        <li><a href="#saratoga">Saratoga</a></li>
+        <li><a href="#ashland">Ashland</a></li>
+        <li><a href="#santa-cruz">Santa Cruz</a></li>
+    </ul>
 
-  <!-- ── Selected Works ──────────────────────────────────────── -->
-  <!-- REPLACE: captions are placeholders — give each print a title
-       and location, e.g. <em>Morning Fog</em> Dolomites, Italy
-
-       ASPECT RATIOS — images are never cropped here; pick a size
-       class matching each photo's shape:
-         print--lg    3:2 or 2:3 (standard)
-         print--pano  panoramic (any wide ratio)
-         print--sq    1:1 square (also good for 2:3 portraits)
-       Pairs (.print-pair) work with any mix; they align at the top. -->
-  <section class="section" aria-label="Selected works">
-    <div class="section-heading">
-      <h2>Selected Works</h2>
-      <div class="rule"></div>
+    <div class="map-panel">
+      <div id="gallery-map" role="application"
+           aria-label="Map of photograph locations"></div>
+      <p class="map-hint">Scroll or pinch to zoom &middot; select a pin to open that gallery</p>
+      <noscript>
+        <p class="map-hint">The map needs JavaScript — use the location links above.</p>
+      </noscript>
     </div>
 
-    <div class="works">
+    <script type="application/json" id="gallery-pins">[
+    {"slug": "new-york", "name": "New York", "lat": 40.712800, "lon": -74.006000, "count": 10},
+    {"slug": "san-francisco", "name": "San Francisco", "lat": 37.810000, "lon": -122.477000, "count": 7},
+    {"slug": "deschutes-river", "name": "Deschutes River", "lat": 45.172000, "lon": -121.080000, "count": 6},
+    {"slug": "cinque-terre", "name": "Cinque Terre", "lat": 44.134961, "lon": 9.683195, "count": 4},
+    {"slug": "lake-como", "name": "Lake Como", "lat": 45.806122, "lon": 9.086405, "count": 4},
+    {"slug": "florence", "name": "Florence", "lat": 43.773313, "lon": 11.258700, "count": 2},
+    {"slug": "rome", "name": "Rome", "lat": 41.905138, "lon": 12.480830, "count": 2},
+    {"slug": "saratoga", "name": "Saratoga", "lat": 37.257000, "lon": -122.043000, "count": 2},
+    {"slug": "ashland", "name": "Ashland", "lat": 42.030586, "lon": -122.560813, "count": 1},
+    {"slug": "santa-cruz", "name": "Santa Cruz", "lat": 36.951000, "lon": -122.077000, "count": 1}
+  ]</script>
 
-      <a class="print print--lg" href="galleries.html">
-        <figure>
-          <img src="images/gallery/gallery-1.jpg" alt="Landscape photograph" loading="lazy" />
-          <figcaption><em>Untitled I</em> Location, Year</figcaption>
-        </figure>
-      </a>
-
-      <div class="print-pair">
-        <a class="print" href="galleries.html">
-          <figure>
-            <img src="images/gallery/gallery-2.jpg" alt="Landscape photograph" loading="lazy" />
-            <figcaption><em>Untitled II</em> Location, Year</figcaption>
-          </figure>
-        </a>
-        <a class="print" href="galleries.html">
-          <figure>
-            <img src="images/gallery/gallery-3.jpg" alt="Landscape photograph" loading="lazy" />
-            <figcaption><em>Untitled III</em> Location, Year</figcaption>
-          </figure>
-        </a>
+    <section class="section gallery-section" id="new-york">
+      <div class="section-heading">
+        <h2>New York</h2>
+        <div class="rule"></div>
+        <p class="gallery-count">10 photographs</p>
       </div>
 
-      <a class="print print--lg" href="galleries.html">
-        <figure>
-          <img src="images/gallery/gallery-4.jpg" alt="Landscape photograph" loading="lazy" />
-          <figcaption><em>Untitled IV</em> Location, Year</figcaption>
-        </figure>
-      </a>
+      <div class="works">
 
-      <div class="print-pair">
-        <a class="print" href="galleries.html">
+        <div class="print print--lg">
           <figure>
-            <img src="images/gallery/gallery-5.jpg" alt="Landscape photograph" loading="lazy" />
-            <figcaption><em>Untitled V</em> Location, Year</figcaption>
+            <img src="images/gallery/new-york/DEV04649.JPG" alt="Untitled" loading="lazy" width="1835" height="1080" />
+            <figcaption><em>Untitled</em> New York, Year</figcaption>
           </figure>
-        </a>
-        <a class="print" href="galleries.html">
+        </div>
+
+        <div class="print print--lg">
           <figure>
-            <img src="images/gallery/gallery-6.jpg" alt="Landscape photograph" loading="lazy" />
-            <figcaption><em>Untitled VI</em> Location, Year</figcaption>
+            <img src="images/gallery/new-york/DEV04683.JPG" alt="Untitled" loading="lazy" width="1620" height="1080" />
+            <figcaption><em>Untitled</em> New York, Year</figcaption>
           </figure>
-        </a>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/new-york/DEV04684.JPG" alt="Untitled" loading="lazy" width="1638" height="1080" />
+            <figcaption><em>Untitled</em> New York, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/new-york/DEV04738.JPG" alt="Untitled" loading="lazy" width="1620" height="1080" />
+            <figcaption><em>Untitled</em> New York, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--pano">
+          <figure>
+            <img src="images/gallery/new-york/DEV04751.JPG" alt="Untitled" loading="lazy" width="2208" height="1080" />
+            <figcaption><em>Untitled</em> New York, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/new-york/DEV04767.JPG" alt="Untitled" loading="lazy" width="1620" height="1080" />
+            <figcaption><em>Untitled</em> New York, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/new-york/DEV04777.JPG" alt="Untitled" loading="lazy" width="1929" height="1080" />
+            <figcaption><em>Untitled</em> New York, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print-pair">
+          <div class="print print--sq">
+            <figure>
+              <img src="images/gallery/new-york/DEV04792.JPG" alt="Untitled" loading="lazy" width="1080" height="1620" />
+              <figcaption><em>Untitled</em> New York, Year</figcaption>
+            </figure>
+          </div>
+          <div class="print print--sq">
+            <figure>
+              <img src="images/gallery/new-york/DEV04799.JPG" alt="Untitled" loading="lazy" width="1080" height="1582" />
+              <figcaption><em>Untitled</em> New York, Year</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/new-york/DEV04865.JPG" alt="Untitled" loading="lazy" width="1888" height="1080" />
+            <figcaption><em>Untitled</em> New York, Year</figcaption>
+          </figure>
+        </div>
+
+      </div>
+    </section>
+    <section class="section gallery-section" id="san-francisco">
+      <div class="section-heading">
+        <h2>San Francisco</h2>
+        <div class="rule"></div>
+        <p class="gallery-count">7 photographs</p>
       </div>
 
-    </div>
+      <div class="works">
 
-    <p class="works-more">
-      <a href="galleries.html" class="text-link">View All Galleries &rarr;</a>
-    </p>
-  </section>
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/san-francisco/dev03049.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
+            <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
+          </figure>
+        </div>
 
-  <!-- ── About Teaser ────────────────────────────────────────── -->
-  <!-- REPLACE: Update the paragraph below with your own bio. -->
-  <section class="section section--about" aria-label="About">
-    <div class="about-teaser">
-      <p>
-        I'm Gian &mdash; a photographer drawn to the scale and stillness
-        of the natural world, shooting landscapes where light and land collide.
-      </p>
-      <a href="about.html" class="text-link">About Me &rarr;</a>
-    </div>
-  </section>
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/san-francisco/dev03050.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
+            <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
+          </figure>
+        </div>
 
-  <!-- ── Footer ──────────────────────────────────────────────── -->
-  <!-- REPLACE: Update social links with your actual profile URLs. -->
+        <div class="print print--sq">
+          <figure>
+            <img src="images/gallery/san-francisco/dev03053.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
+            <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/san-francisco/dev03069.jpg" alt="Untitled" loading="lazy" width="2000" height="1125" />
+            <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--pano">
+          <figure>
+            <img src="images/gallery/san-francisco/dev03078.jpg" alt="Untitled" loading="lazy" width="2000" height="927" />
+            <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print-pair">
+          <div class="print print--sq">
+            <figure>
+              <img src="images/gallery/san-francisco/dev03084.jpg" alt="Untitled" loading="lazy" width="2000" height="2000" />
+              <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
+            </figure>
+          </div>
+          <div class="print print--sq">
+            <figure>
+              <img src="images/gallery/san-francisco/dev03092.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
+              <figcaption><em>Untitled</em> San Francisco, Year</figcaption>
+            </figure>
+          </div>
+        </div>
+
+      </div>
+    </section>
+    <section class="section gallery-section" id="deschutes-river">
+      <div class="section-heading">
+        <h2>Deschutes River</h2>
+        <div class="rule"></div>
+        <p class="gallery-count">6 photographs</p>
+      </div>
+
+      <div class="works">
+
+        <div class="print print--sq">
+          <figure>
+            <img src="images/gallery/deschutes-river/dev03625.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
+            <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/deschutes-river/dev03647.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
+            <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--sq">
+          <figure>
+            <img src="images/gallery/deschutes-river/dev03686.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
+            <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/deschutes-river/dev03707.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
+            <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--sq">
+          <figure>
+            <img src="images/gallery/deschutes-river/dev03788.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
+            <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/deschutes-river/dev03805.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
+            <figcaption><em>Untitled</em> Deschutes River, Year</figcaption>
+          </figure>
+        </div>
+
+      </div>
+    </section>
+    <section class="section gallery-section" id="cinque-terre">
+      <div class="section-heading">
+        <h2>Cinque Terre</h2>
+        <div class="rule"></div>
+        <p class="gallery-count">4 photographs</p>
+      </div>
+
+      <div class="works">
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/cinque-terre/img_0946.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
+            <figcaption><em>Untitled</em> Cinque Terre, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print-pair">
+          <div class="print print--sq">
+            <figure>
+              <img src="images/gallery/cinque-terre/img_0956.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
+              <figcaption><em>Untitled</em> Cinque Terre, Year</figcaption>
+            </figure>
+          </div>
+          <div class="print print--sq">
+            <figure>
+              <img src="images/gallery/cinque-terre/img_1077.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
+              <figcaption><em>Untitled</em> Cinque Terre, Year</figcaption>
+            </figure>
+          </div>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/cinque-terre/img_1091.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
+            <figcaption><em>Untitled</em> Cinque Terre, Year</figcaption>
+          </figure>
+        </div>
+
+      </div>
+    </section>
+    <section class="section gallery-section" id="lake-como">
+      <div class="section-heading">
+        <h2>Lake Como</h2>
+        <div class="rule"></div>
+        <p class="gallery-count">4 photographs</p>
+      </div>
+
+      <div class="works">
+
+        <div class="print print--sq">
+          <figure>
+            <img src="images/gallery/lake-como/IMG_0547.JPG" alt="Untitled" loading="lazy" width="2000" height="2000" />
+            <figcaption><em>Untitled</em> Lake Como, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/lake-como/IMG_0620.JPG" alt="Untitled" loading="lazy" width="5431" height="3236" />
+            <figcaption><em>Untitled</em> Lake Como, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--sq">
+          <figure>
+            <img src="images/gallery/lake-como/IMG_0647.jpg" alt="Untitled" loading="lazy" width="3648" height="5472" />
+            <figcaption><em>Untitled</em> Lake Como, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/lake-como/img_0540.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
+            <figcaption><em>Untitled</em> Lake Como, Year</figcaption>
+          </figure>
+        </div>
+
+      </div>
+    </section>
+    <section class="section gallery-section" id="florence">
+      <div class="section-heading">
+        <h2>Florence</h2>
+        <div class="rule"></div>
+        <p class="gallery-count">2 photographs</p>
+      </div>
+
+      <div class="works">
+
+        <div class="print-pair">
+          <div class="print print--sq">
+            <figure>
+              <img src="images/gallery/florence/IMG_0734-2.JPG" alt="Untitled" loading="lazy" width="1333" height="2000" />
+              <figcaption><em>Untitled</em> Florence, Year</figcaption>
+            </figure>
+          </div>
+          <div class="print print--sq">
+            <figure>
+              <img src="images/gallery/florence/img_0738.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
+              <figcaption><em>Untitled</em> Florence, Year</figcaption>
+            </figure>
+          </div>
+        </div>
+
+      </div>
+    </section>
+    <section class="section gallery-section" id="rome">
+      <div class="section-heading">
+        <h2>Rome</h2>
+        <div class="rule"></div>
+        <p class="gallery-count">2 photographs</p>
+      </div>
+
+      <div class="works">
+
+        <div class="print print--sq">
+          <figure>
+            <img src="images/gallery/rome/img_0799.jpg" alt="Untitled" loading="lazy" width="1333" height="2000" />
+            <figcaption><em>Untitled</em> Rome, Year</figcaption>
+          </figure>
+        </div>
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/rome/img_0802.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
+            <figcaption><em>Untitled</em> Rome, Year</figcaption>
+          </figure>
+        </div>
+
+      </div>
+    </section>
+    <section class="section gallery-section" id="saratoga">
+      <div class="section-heading">
+        <h2>Saratoga</h2>
+        <div class="rule"></div>
+        <p class="gallery-count">2 photographs</p>
+      </div>
+
+      <div class="works">
+
+        <div class="print-pair">
+          <div class="print print--sq">
+            <figure>
+              <img src="images/gallery/saratoga/img_6963.jpg" alt="Untitled" loading="lazy" width="1365" height="2000" />
+              <figcaption><em>Untitled</em> Saratoga, Year</figcaption>
+            </figure>
+          </div>
+          <div class="print print--sq">
+            <figure>
+              <img src="images/gallery/saratoga/img_6965.jpg" alt="Untitled" loading="lazy" width="1365" height="2000" />
+              <figcaption><em>Untitled</em> Saratoga, Year</figcaption>
+            </figure>
+          </div>
+        </div>
+
+      </div>
+    </section>
+    <section class="section gallery-section" id="ashland">
+      <div class="section-heading">
+        <h2>Ashland</h2>
+        <div class="rule"></div>
+        <p class="gallery-count">1 photograph</p>
+      </div>
+
+      <div class="works">
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/ashland/img_5564.jpg" alt="Untitled" loading="lazy" width="2000" height="1500" />
+            <figcaption><em>Untitled</em> Ashland, Year</figcaption>
+          </figure>
+        </div>
+
+      </div>
+    </section>
+    <section class="section gallery-section" id="santa-cruz">
+      <div class="section-heading">
+        <h2>Santa Cruz</h2>
+        <div class="rule"></div>
+        <p class="gallery-count">1 photograph</p>
+      </div>
+
+      <div class="works">
+
+        <div class="print print--lg">
+          <figure>
+            <img src="images/gallery/santa-cruz/dev03292.jpg" alt="Untitled" loading="lazy" width="2000" height="1333" />
+            <figcaption><em>Untitled</em> Santa Cruz, Year</figcaption>
+          </figure>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
   <footer class="footer">
     <span class="footer-copy">&copy; 2026 Gian</span>
     <nav class="footer-links" aria-label="Social links">
@@ -149,6 +474,11 @@
     </nav>
   </footer>
 
-  <script src="js/hero.js?v=3"></script>
+  <script src="js/hero.js?v=4"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="js/gallery-map.js?v=4"></script>
+  <script src="js/galleries.js?v=4"></script>
+  <script src="js/lightbox.js?v=4"></script>
 </body>
 </html>

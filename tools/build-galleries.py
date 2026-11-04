@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """
-build-galleries.py — regenerate galleries.html from images/gallery/
+build-galleries.py — regenerate index.html (the gallery homepage) from images/gallery/
 
 Usage:
     python3 tools/build-galleries.py
 
 Scans images/gallery/ for one folder per location, reads each photo's real
 dimensions, and lays the photos out as matted prints sized to their natural
-aspect ratio. Locations are padded with placeholder tiles (3:2, 2:3, 1:1) so
-the page reads as finished while more photographs are still to come.
+aspect ratio. An empty location folder shows as "Coming soon".
 
 Captions
 --------
@@ -28,18 +27,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 GALLERY_DIR = ROOT / "images" / "gallery"
-OUT = ROOT / "galleries.html"
-
-MIN_SLOTS = 6          # pad each location up to this many prints
-MIN_PLACEHOLDERS = 2   # ...and always leave at least this many open slots
-PLACEHOLDER_CYCLE = ["3x2", "2x3", "1x1"]
-
-# Placeholder shape -> (print size class, pairs-well-with-a-neighbour)
-PLACEHOLDER_SHAPE = {
-    "3x2": ("print--lg", False, 300, 200),
-    "2x3": ("print--sq", True, 200, 300),
-    "1x1": ("print--sq", True, 240, 240),
-}
+OUT = ROOT / "index.html"
 
 
 def dimensions(path):
@@ -163,20 +151,6 @@ def collect():
                 "h": h,
             })
 
-        n_pad = max(MIN_PLACEHOLDERS, MIN_SLOTS - len(items))
-        for i in range(n_pad):
-            shape = PLACEHOLDER_CYCLE[i % len(PLACEHOLDER_CYCLE)]
-            cls, pairs, pw, ph = PLACEHOLDER_SHAPE[shape]
-            items.append({
-                "kind": "placeholder",
-                "src": f"images/placeholders/{shape}.svg",
-                "cls": cls,
-                "pairs": pairs,
-                "shape": shape,
-                "w": pw,
-                "h": ph,
-            })
-
         locations[slug] = items
 
     # Biggest galleries first; alphabetical among equals so the order is stable.
@@ -199,15 +173,6 @@ def figure_html(item, indent):
     """
     pad = " " * indent
     dims = f'width="{item["w"]}" height="{item["h"]}"'
-    if item["kind"] == "placeholder":
-        return (
-            f'{pad}<div class="print {item["cls"]} print--empty">\n'
-            f'{pad}  <figure>\n'
-            f'{pad}    <img src="{item["src"]}" alt="" aria-hidden="true" {dims} />\n'
-            f'{pad}    <figcaption>Open slot &middot; {item["shape"].replace("x", ":")}</figcaption>\n'
-            f'{pad}  </figure>\n'
-            f'{pad}</div>'
-        )
     return (
         f'{pad}<div class="print {item["cls"]}">\n'
         f'{pad}  <figure>\n'
@@ -282,14 +247,14 @@ def build(locations, coords):
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Galleries — Gian Photography</title>
+  <title>Gian — Landscape Photography</title>
   <meta name="description" content="Landscape photography galleries by location." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="css/style.css?v=3" />
+  <link rel="stylesheet" href="css/style.css?v=4" />
 </head>
 <body>
 
@@ -299,7 +264,7 @@ def build(locations, coords):
   <nav class="nav scrolled">
     <a href="index.html" class="nav-logo">Gian</a>
     <ul class="nav-links">
-      <li><a href="galleries.html" aria-current="page">Galleries</a></li>
+      <li><a href="index.html" aria-current="page">Galleries</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="contact.html">Contact</a></li>
     </ul>
@@ -346,11 +311,12 @@ def build(locations, coords):
     </nav>
   </footer>
 
-  <script src="js/hero.js?v=3"></script>
+  <script src="js/hero.js?v=4"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-  <script src="js/gallery-map.js?v=3"></script>
-  <script src="js/galleries.js?v=3"></script>
+  <script src="js/gallery-map.js?v=4"></script>
+  <script src="js/galleries.js?v=4"></script>
+  <script src="js/lightbox.js?v=4"></script>
 </body>
 </html>
 """
@@ -365,18 +331,14 @@ def main():
     total_photos = sum(
         1 for items in locations.values() for it in items if it["kind"] == "photo"
     )
-    total_slots = sum(
-        1 for items in locations.values() for it in items if it["kind"] == "placeholder"
-    )
     for slug, items in locations.items():
         p = sum(1 for it in items if it["kind"] == "photo")
-        h = sum(1 for it in items if it["kind"] == "placeholder")
         pin = f"{coords[slug][0]:.3f}, {coords[slug][1]:.3f}" if slug in coords \
             else "NO PIN — add a line to images/gallery/locations.txt"
-        print(f"  {slug:<18} {p:>2} photos, {h:>2} open slots   {pin}")
+        print(f"  {slug:<18} {p:>2} photos   {pin}")
     print(f"\nWrote {OUT.relative_to(ROOT)} — "
           f"{len(locations)} locations, {total_photos} photos, "
-          f"{total_slots} slots, {len(coords)} map pins")
+          f"{len(coords)} map pins")
 
 
 if __name__ == "__main__":

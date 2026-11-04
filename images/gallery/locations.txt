@@ -12,7 +12,7 @@
 #     python3 tools/build-galleries.py
 
 san-francisco   | 37.8100  | -122.4770   # (approx) Lands End / Golden Gate
-santa-clara     | 37.3727  | -121.9861   # measured from earlier shoot GPS
+new-york        | 40.7128  | -74.0060    # (approx) Manhattan
 saratoga        | 37.2570  | -122.0430   # measured from earlier shoot GPS
 santa-cruz      | 36.9510  | -122.0770   # (approx) West Cliff Drive
 deschutes-river | 45.1720  | -121.0800   # (approx) lower river near Maupin, OR

@@ -1,5 +1,5 @@
 /**
- * galleries.js — behaviour for the location bar on galleries.html
+ * galleries.js — behaviour for the location bar on the gallery homepage (index.html)
  *
  * Three jobs:
  *   1. Drive the jump links, and verify where they actually landed.

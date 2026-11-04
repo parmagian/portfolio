@@ -5,7 +5,7 @@ gallery on the site.
 
 ```
 images/gallery/
-  santa-clara/
+  new-york/
   saratoga/
   san-francisco/
   deschutes-river/

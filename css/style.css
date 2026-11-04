@@ -609,22 +609,145 @@ a {
   color: var(--muted);
 }
 
-/* Open slots — photographs still to come. Presented as a bare mat with
-   no shadow so they read as reserved space, not as hung prints. */
-.print--empty figure {
+/* Galleries hang as a compact wall: up to 2 columns of uncropped prints
+   (fewer on narrow screens), so each location takes a screen or two
+   instead of one print per row. */
+.gallery-section .section-heading { margin-bottom: clamp(28px, 4vw, 48px); }
+
+.gallery-section .works {
+  display: block;
+  max-width: 1200px;
+  columns: 2 260px;
+  column-gap: clamp(16px, 2vw, 28px);
+}
+
+.gallery-section .print-pair { display: contents; }
+
+.gallery-section .print {
+  width: auto;
+  break-inside: avoid;
+  margin-bottom: clamp(16px, 2vw, 28px);
+}
+
+.gallery-section .print figure { padding: clamp(8px, 1vw, 12px); }
+.gallery-section .print figcaption { margin-top: 10px; }
+.gallery-section .print { cursor: zoom-in; }
+
+/* Lightbox — a print opened large (js/lightbox.js) */
+.lightbox {
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  border: 0;
   background: transparent;
-  box-shadow: none;
-  padding: 0;
 }
 
-.print--empty:hover figure {
-  transform: none;
-  box-shadow: none;
+.lightbox[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.print--empty figcaption {
-  color: #B5ADA4;
+.lightbox::backdrop { background: rgba(24, 22, 20, 0.94); }
+
+body:has(.lightbox[open]) { overflow: hidden; }
+
+/* Which collection you're in: "New York" with "3 / 10" under it */
+.lb-head {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  color: #F2EEE8;
+  pointer-events: none;
 }
+
+.lb-title {
+  font-family: var(--serif);
+  font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.lb-count {
+  margin-top: 4px;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking);
+  color: #A9A198;
+}
+
+.lightbox figure { text-align: center; margin-top: 56px; }
+
+.lightbox img {
+  width: auto;
+  max-width: 86vw;
+  max-height: 76vh;
+}
+
+/* Click the photo to zoom; pointer pans (js/lightbox.js sets the origin) */
+.lightbox img {
+  position: relative;
+  cursor: zoom-in;
+  transition: transform 0.3s ease;
+}
+
+.lightbox.zoomed img {
+  transform: scale(var(--zoom, 2));
+  cursor: zoom-out;
+}
+
+.lightbox.zoomed { overflow: hidden; }
+.lightbox.zoomed figcaption,
+.lightbox.zoomed .lb-head { opacity: 0; }
+
+.lb-head,
+.lb-btn { z-index: 2; }
+
+.lightbox figcaption {
+  margin-top: 14px;
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: var(--tracking);
+  text-transform: uppercase;
+  color: #A9A198;
+}
+
+.lightbox figcaption em {
+  display: block;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: #F2EEE8;
+}
+
+.lb-btn {
+  position: fixed;
+  padding: 14px 18px;
+  border: 0;
+  background: none;
+  color: #F2EEE8;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);  /* readable over a zoomed photo */
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+}
+
+.lb-btn:hover,
+.lb-btn:focus-visible { opacity: 1; }
+
+.lb-prev  { left: 8px;  top: 50%; transform: translateY(-50%); }
+.lb-next  { right: 8px; top: 50%; transform: translateY(-50%); }
+.lb-close { right: 8px; top: 8px; }
+
+.lightbox.single .lb-prev,
+.lightbox.single .lb-next { display: none; }
 
 /* ── Stub Pages ─────────────────────────────────────────────── */
 .stub-body {

@@ -9,8 +9,10 @@
 #   ./tools/shrink-images.sh images/gallery/rome
 #
 # Safe to run as often as you like:
-#   - Anything already at or below MAX_PX is skipped, so re-running
-#     never re-compresses a photo or degrades it.
+#   - Anything already at or below MAX_PX and MAX_BYTES is skipped, so
+#     re-running never re-compresses a photo or degrades it. A photo that
+#     is small in pixels but still over MAX_BYTES is re-compressed without
+#     resizing (otherwise the pre-push check rejects it).
 #   - An original is archived only if nothing is archived under that
 #     name yet, so a second run can't replace a full-size original
 #     with the shrunken version. (That mistake cost real originals
@@ -22,6 +24,7 @@
 set -euo pipefail
 
 MAX_PX=2000
+MAX_BYTES=$((2 * 1024 * 1024))   # 2 MB — must match tools/hooks/pre-push
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 
 # Originals live inside the repo but are git-ignored (see .gitignore).
@@ -68,12 +71,15 @@ while IFS= read -r -d '' f; do
   fi
 
   long=$w; [ "$h" -gt "$w" ] && long=$h
-  if [ "$long" -le "$MAX_PX" ]; then
+  before=$(stat -f%z "$f")
+  if [ "$long" -le "$MAX_PX" ] && [ "$before" -le "$MAX_BYTES" ]; then
     skipped=$((skipped + 1))
     continue
   fi
 
-  before=$(stat -f%z "$f")
+  # Only resample when the pixels are actually too big — never upscale.
+  resize=()
+  [ "$long" -gt "$MAX_PX" ] && resize=(--resampleHeightWidthMax "$MAX_PX")
 
   # Archive the original — but never on top of something already there.
   archive="$ARCHIVE_ROOT/$rel"
@@ -85,7 +91,7 @@ while IFS= read -r -d '' f; do
   fi
 
   tmp="$f.shrinking"
-  if sips --resampleHeightWidthMax "$MAX_PX" \
+  if sips ${resize[@]+"${resize[@]}"} \
           --setProperty format jpeg \
           --setProperty formatOptions high \
           "$f" --out "$tmp" > /dev/null 2>&1 && [ -s "$tmp" ]; then
